@@ -26,7 +26,8 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # actions-github-pages v4.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           publish_dir: ./build
+          external_repository: 'nikitaDanilenko/nikitaDanilenko.github.io'
           publish_branch: 'main'
           destination_dir: 'advent-of-code-2024'
