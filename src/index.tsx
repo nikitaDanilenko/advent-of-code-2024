@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import App from './App';
 import {BrowserRouter, Routes, Route} from "react-router";
 import Day01 from "./Solutions/Day01/Day01";
