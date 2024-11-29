@@ -1,1 +1,16 @@
-@import url('https://adventofcode.com/static/style.css');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300');
+
+body {
+  background-color: #222222;
+  align-items: center;
+  justify-content: center;
+  font-family: "Source Code Pro", monospace;
+  color: #cccccc;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: #61dafb;
+  font-family: "Source Code Pro", monospace;
+}
