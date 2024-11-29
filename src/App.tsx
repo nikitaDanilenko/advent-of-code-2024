@@ -9,7 +9,7 @@ function App() {
         <h1>Advent of Code 2024 Solutions in TypeScript</h1>
       </header>
       <section>
-        <h2>Day 01</h2>
+        <h2> <a href={'./day01'}>Day 01</a></h2>
       </section>
     </main>
   );
