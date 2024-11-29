@@ -8,7 +8,6 @@ body {
   background-color: #0f0f23;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
   font-family: "Source Code Pro", monospace;
   color: #cccccc;
 }
