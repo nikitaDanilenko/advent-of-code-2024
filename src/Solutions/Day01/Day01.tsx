@@ -44,7 +44,7 @@ function Day01() {
   function submitForm(input: string): void {
     const parsed = parseInput(input)
     setPart1(solvePart1(parsed))
-    // setPart2(solvePart2(parsed))
+    setPart2(solvePart2(parsed))
   }
 
   function resetResponses(): void {
