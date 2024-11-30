@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/advent-of-code-2024/static/css/main.f56d73c5.css",
+    "main.js": "/advent-of-code-2024/static/js/main.2ee303ec.js",
+    "index.html": "/advent-of-code-2024/index.html",
+    "main.f56d73c5.css.map": "/advent-of-code-2024/static/css/main.f56d73c5.css.map",
+    "main.2ee303ec.js.map": "/advent-of-code-2024/static/js/main.2ee303ec.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f56d73c5.css",
+    "static/js/main.2ee303ec.js"
+  ]
+}
