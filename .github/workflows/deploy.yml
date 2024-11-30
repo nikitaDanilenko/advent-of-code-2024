@@ -23,4 +23,7 @@ jobs:
       - name: Install dependencies
         run: npm install --force
       - name: Build project
-        run: npm run deploy
+        run: |
+          git config --global user.email "deployment@github.com"
+          git config --global user.name "Deployment Workflow"
+          npm run deploy
