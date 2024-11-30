@@ -5,5 +5,5 @@ export type Paths = {
 
 export const paths: Paths = {
   root: "/",
-  day01: "/day01",
+  day01: "day01",
 }
