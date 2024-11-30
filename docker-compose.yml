@@ -1,9 +1,0 @@
-version: '3'
-services:
-  frontend:
-    container_name: aoc-2024-frontend
-    image: aoc
-    ports:
-      - "9004:80"
-    restart: always
-
