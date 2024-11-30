@@ -22,6 +22,7 @@ jobs:
         run: npm install --force
       - name: Build project
         run: |
-          git config --global user.email "nikita.danilenko.is@gmail.com"
-          git config --global user.name "Deployment Workflow"
+          gh auth login --with-token
           npm run deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
