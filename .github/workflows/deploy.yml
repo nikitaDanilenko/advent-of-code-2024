@@ -22,6 +22,7 @@ jobs:
         run: npm install --force
       - name: Build project
         run: |
-          git config --global user.email "nikita.danilenko.is@gmail.com"
-          git config --global user.name "nikitaDanilenko"
+          git config --global url.https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/.insteadOf https://github.com/
+          git config --global user.email "deployment@github.com"
+          git config --global user.name "Deployment Workflow"
           npm run deploy
