@@ -1,10 +1,10 @@
-import React from "react";
+import React from "react"
 
 function Day01() {
   const [input, setInput] = React.useState<string>("")
   const [part1, setPart1] = React.useState<number | undefined>(undefined)
   const [part2, setPart2] = React.useState<number | undefined>(undefined)
-  const [error, setError] = React.useState<string>("");
+  const [error, setError] = React.useState<string>("")
 
   function handleTextAreaChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
     setInput(event.target.value)
