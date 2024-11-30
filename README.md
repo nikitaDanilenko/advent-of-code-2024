@@ -58,3 +58,13 @@ There are some caveats:
    The first line is particularly important, and discussed at length [here](https://github.com/orgs/community/discussions/26580#discussioncomment-7147217).
    The PAT used in that line will expire after three months, which should be fine for this project.
    The token has write access to the repository.
+
+# Takeaways
+
+1. The routing is significantly simpler than with Elm, because in Elm everything needs to be done manually.
+   However, the default behaviour of the `BrowserRouter` is extremely counterintuitive: 
+   It works fine in development, but fails in production without any good indication of what went wrong.
+   I spent a lot of time debugging here.
+2. I like that the `build` output is essentially the same as the one created by `create-elm-app`.
+3. The automatic deployment to GitHub Pages is a nice feature.
+   Initial struggles aside, the deployment is also extremely simple, and the corresponding workflow is very straightforward.
