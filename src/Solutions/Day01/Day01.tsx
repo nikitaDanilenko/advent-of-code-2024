@@ -1,9 +1,12 @@
 import React from "react"
+import {Pair} from "../Utils/Types";
+import {absBigInt, sum} from "../Utils/MathUtil";
+import lodash from "lodash";
 
 function Day01() {
   const [input, setInput] = React.useState<string>("")
-  const [part1, setPart1] = React.useState<number | undefined>(undefined)
-  const [part2, setPart2] = React.useState<number | undefined>(undefined)
+  const [part1, setPart1] = React.useState<bigint | undefined>(undefined)
+  const [part2, setPart2] = React.useState<bigint | undefined>(undefined)
   const [error, setError] = React.useState<string>("")
 
   function handleTextAreaChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
@@ -20,25 +23,59 @@ function Day01() {
     }
   }
 
-  interface PuzzleInput {
-    first: string,
-    second: string
+  type PuzzleInput = {
+    firstList: bigint[],
+    secondList: bigint[]
   }
 
   function parseInput(puzzleInput: string): PuzzleInput {
-    const [first, second] = puzzleInput.split("\n")
-    return {
-      first: first,
-      second: second
+    const pairs = puzzleInput
+      .split("\n")
+      .filter((line) => line !== "")
+      .map((line) => {
+        const words = line.split("   ").map((word) => BigInt(word))
+
+        return words.length >= 2 ? {first: words[0], second: words[1]} : null;
+      })
+      .filter((pair) => pair !== null)
+
+    function sort(f: (pair: Pair<bigint, bigint>) => bigint): bigint[] {
+      return pairs.map(f).sort((a, b) => Number(a - b))
     }
+
+    const firsts = sort((pair) => pair.first)
+    const seconds = sort((pair) => pair.second)
+
+    return {firstList: firsts, secondList: seconds}
   }
 
-  function solvePart1(puzzleInput: PuzzleInput): number {
-    return puzzleInput.first.length
+  function solvePart1(puzzleInput: PuzzleInput): bigint {
+    const result =
+      sum(
+        lodash
+          .zipWith(puzzleInput.firstList, puzzleInput.secondList, (x, y) => ({first: x, second: y}))
+          .map((pair) => absBigInt(pair.first - pair.second))
+      )
+
+    return result
   }
 
-  function solvePart2(puzzleInput: PuzzleInput): number {
-    return puzzleInput.second.length
+  function solvePart2(puzzleInput: PuzzleInput): bigint {
+
+    const o: Map<string, number> = new Map(
+      Object.entries(lodash.groupBy(puzzleInput.secondList, (value) => value))
+        .map(([key, value]) => [key, value.length])
+    )
+
+    const result =
+      sum(puzzleInput
+        .firstList
+        .map((value) => {
+          const inSecond = o.get(value.toString()) || 0
+          return value * BigInt(inSecond)
+        }))
+
+    return result
   }
 
   function submitForm(input: string): void {
@@ -63,11 +100,11 @@ function Day01() {
   const responseBlock = <section>
     {part1 !== undefined && <section>
       <h2>Part 1</h2>
-      <p>{part1}</p>
+      <p>{part1.toString()}</p>
     </section>}
     {part2 !== undefined && <section>
       <h2>Part 2</h2>
-      <p>{part2}</p>
+      <p>{part2.toString()}</p>
     </section>
     }
     {(part1 ?? part2) !== undefined && <button onClick={resetInput}>Reset input</button>}
