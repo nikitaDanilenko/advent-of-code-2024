@@ -7,5 +7,6 @@ export default defineConfig(() => {
       outDir: 'build',
     },
     plugins: [react()],
+    base: '/advent-of-code-2024/',
   };
 });
