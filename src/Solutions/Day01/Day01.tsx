@@ -1,7 +1,7 @@
 import React from "react"
 import {Pair} from "../Utils/Types";
-import {zip} from "../Utils/ArrayUtil";
-import {absBigInt} from "../Utils/MathUtil";
+import {absBigInt, sum} from "../Utils/MathUtil";
+import lodash from "lodash";
 
 function Day01() {
   const [input, setInput] = React.useState<string>("")
@@ -24,7 +24,8 @@ function Day01() {
   }
 
   type PuzzleInput = {
-    pairs: Pair<bigint, bigint>[]
+    firstList: bigint[],
+    secondList: bigint[]
   }
 
   function parseInput(puzzleInput: string): PuzzleInput {
@@ -37,26 +38,44 @@ function Day01() {
         return words.length >= 2 ? {first: words[0], second: words[1]} : null;
       })
       .filter((pair) => pair !== null)
-    return {pairs: pairs}
-  }
 
-  function solvePart1(puzzleInput: PuzzleInput): bigint {
     function sort(f: (pair: Pair<bigint, bigint>) => bigint): bigint[] {
-      return puzzleInput.pairs.map(f).sort((a, b) => Number(a - b))
+      return pairs.map(f).sort((a, b) => Number(a - b))
     }
 
     const firsts = sort((pair) => pair.first)
     const seconds = sort((pair) => pair.second)
 
-    const result = zip(firsts, seconds)
-      .map((pair) => absBigInt(pair.first - pair.second))
-      .reduce((acc, diff) => acc + diff, BigInt(0))
+    return {firstList: firsts, secondList: seconds}
+  }
+
+  function solvePart1(puzzleInput: PuzzleInput): bigint {
+    const result =
+      sum(
+        lodash
+          .zipWith(puzzleInput.firstList, puzzleInput.secondList, (x, y) => ({first: x, second: y}))
+          .map((pair) => absBigInt(pair.first - pair.second))
+      )
 
     return result
   }
 
   function solvePart2(puzzleInput: PuzzleInput): bigint {
-    return BigInt(0)
+
+    const o: Map<string, number> = new Map(
+      Object.entries(lodash.groupBy(puzzleInput.secondList, (value) => value))
+        .map(([key, value]) => [key, value.length])
+    )
+
+    const result =
+      sum(puzzleInput
+        .firstList
+        .map((value) => {
+          const inSecond = o.get(value.toString()) || 0
+          return value * BigInt(inSecond)
+        }))
+
+    return result
   }
 
   function submitForm(input: string): void {
