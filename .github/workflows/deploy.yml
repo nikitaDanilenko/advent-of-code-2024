@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: '23'
       - name: Install dependencies
-        run: npm install --force
+        run: npm install
       - name: Build project
         run: |
           git config --global url.https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/.insteadOf https://github.com/
