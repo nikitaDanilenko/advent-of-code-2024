@@ -1,8 +1,0 @@
-# IntelliJ IDEA
-.idea
-
-# Package dependencies via Node
-node_modules
-
-# Compiled JavaScript files
-build
