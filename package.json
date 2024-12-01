@@ -20,7 +20,7 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
-    "predeploy": "npm run build",
+    "predeploy": "vite build",
     "deploy": "gh-pages -d build",
     "start": "vite",
     "build": "vite build",
