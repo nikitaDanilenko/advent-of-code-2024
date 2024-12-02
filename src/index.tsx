@@ -1,8 +1,9 @@
 import ReactDOM from 'react-dom/client'
 import App from './App'
-import {HashRouter, Routes, Route} from "react-router-dom"
-import Day01 from "./Solutions/Day01/Day01"
+import {HashRouter, Route, Routes} from "react-router-dom"
 import {paths} from "./Paths"
+import Day01 from "./Solutions/Day01/Day01"
+import Day02 from "./Solutions/Day01/Day02";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -11,9 +12,10 @@ const root = ReactDOM.createRoot(
 root.render(
   <HashRouter>
     <Routes>
-      <Route path={paths.root} >
+      <Route path={paths.root}>
         <Route index element={<App/>}/>
         <Route path={paths.day01} element={<Day01/>}/>
+        <Route path={paths.day02} element={<Day02/>}/>
       </Route>
     </Routes>
   </HashRouter>
