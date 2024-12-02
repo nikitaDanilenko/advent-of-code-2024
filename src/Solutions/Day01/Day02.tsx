@@ -30,21 +30,32 @@ function Day02() {
     )
   }
 
-  function countWith(predicate: (x: number, y: number) => boolean, puzzleInput: PuzzleInput): number {
-    return (puzzleInput.reports.filter((levels) => checkOrder(predicate, levels))).length
-  }
+  const smaller = (x: number, y: number): boolean => x < y && y - x <= 3
+  const larger = (x: number, y: number): boolean => x > y && x - y <= 3
 
   function solvePart1(puzzleInput: PuzzleInput): bigint {
-    const ascending = countWith((x, y) => x < y && y - x <= 3, puzzleInput)
+    return (BigInt(puzzleInput.reports.filter(isValid).length))
+  }
 
-    const descending = countWith((x, y) => x > y && x - y <= 3, puzzleInput)
-    const result = BigInt(ascending + descending)
+  function isValid(levels: Levels): boolean {
+    return (checkOrder(smaller, levels) || checkOrder(larger, levels))
+  }
 
-    return (result)
+  function tryRemoval(levels: Levels): boolean {
+    const length = levels.length
+    const singleDrops = _.range(0, length)
+      .filter((i) => {
+        const droppedI = levels.slice(0, i).concat(levels.slice(i + 1, length))
+        return isValid(droppedI)
+      })
+
+    return singleDrops.length > 0
   }
 
   function solvePart2(puzzleInput: PuzzleInput): bigint {
-    return BigInt(0)
+    const [valid, invalid] = _.partition(puzzleInput.reports, isValid)
+    const indirectlyValid = invalid.filter(tryRemoval)
+    return BigInt(valid.length + indirectlyValid.length)
   }
 
   return DayWith<PuzzleInput>(
