@@ -3,8 +3,8 @@ import App from './App'
 import {HashRouter, Route, Routes} from "react-router-dom"
 import {paths} from "./Paths"
 import Day01 from "./Solutions/Day01/Day01"
-import Day02 from "./Solutions/Day01/Day02";
-import Day03 from "./Solutions/Day01/Day03";
+import Day02 from "./Solutions/Day02/Day02.tsx";
+import Day03 from "./Solutions/Day03/Day03.tsx";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
