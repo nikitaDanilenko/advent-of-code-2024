@@ -1,6 +1,6 @@
-import React from "react";
-import {paths} from "../../Paths.ts";
-import {Link} from "react-router-dom";
+import React from "react"
+import {rootPath} from "../../Paths.ts"
+import {Link} from "react-router-dom"
 
 function DayWith<PuzzleInput>(
   number: string,
@@ -63,7 +63,7 @@ function DayWith<PuzzleInput>(
     <main>
       <header>
         <h1>{`Solution for Day ${number}`} </h1>
-        <Link to={paths.root}>Back to overview</Link>
+        <Link to={rootPath}>Back to overview</Link>
       </header>
       <section>
         <h2>Input</h2>

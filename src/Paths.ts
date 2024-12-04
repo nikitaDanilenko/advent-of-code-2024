@@ -1,17 +1,27 @@
-export type Paths = {
-  root: string
-  day01: string,
-  day02: string,
-  day03: string,
-  day04: string,
-}
+import React from "react"
+import Day01 from "./Solutions/Day01/Day01.tsx"
+import Day02 from "./Solutions/Day02/Day02.tsx"
+import Day03 from "./Solutions/Day03/Day03.tsx"
+import Day04 from "./Solutions/Day04/Day04.tsx"
 
 export const rootPath: string = "/"
 
-export const paths: Paths = {
-  root: "/",
-  day01: "day01",
-  day02: "day02",
-  day03: "day03",
-  day04: "day04",
+export const days: (() => React.JSX.Element)[] = [
+  Day01,
+  Day02,
+  Day03,
+  Day04,
+]
+
+function padToTwoDigits(day: number): string {
+  return day.toString().padStart(2, "0")
 }
+
+export function dayPath(day: number): string {
+  return `day${padToTwoDigits(day)}`
+}
+
+export function dayText(day: number): string {
+  return `Day ${padToTwoDigits(day)}`
+}
+

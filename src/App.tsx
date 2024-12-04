@@ -1,13 +1,11 @@
 import './App.css'
 import {Link} from "react-router-dom"
-import lodash from "lodash";
+import lodash from "lodash"
+import {dayPath, days, dayText} from "./Paths.ts"
 
-const implementedUpTo: number = 4
-
-const sections = lodash.range(1, implementedUpTo + 1).map((index) => {
-    const padIndex = index.toString().padStart(2, "0")
+const sections = lodash.range(1, days.length + 1).map((index) => {
     return <section>
-      <h2><Link to={`day${padIndex}`}>Day {padIndex}</Link></h2>
+      <h2><Link to={dayPath(index)}>{dayText(index)}</Link></h2>
     </section>
   }
 )
