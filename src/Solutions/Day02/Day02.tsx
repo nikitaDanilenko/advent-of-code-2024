@@ -1,5 +1,5 @@
-import DayWith from "../Utils/DayUtil.tsx";
-import * as _ from "lodash";
+import DayWith from "../Utils/DayUtil.tsx"
+import * as _ from "lodash"
 
 function Day02() {
 

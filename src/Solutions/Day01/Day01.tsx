@@ -1,7 +1,7 @@
-import {absBigInt, sum} from "../Utils/MathUtil";
-import lodash from "lodash";
-import DayWith from "../Utils/DayUtil.tsx";
-import {Pair} from "../Utils/Types.ts";
+import {absBigInt, sum} from "../Utils/MathUtil"
+import lodash from "lodash"
+import DayWith from "../Utils/DayUtil.tsx"
+import {Pair} from "../Utils/Types.ts"
 
 function Day01() {
 
@@ -17,7 +17,7 @@ function Day01() {
       .map((line) => {
         const words = line.split("   ").map((word) => BigInt(word))
 
-        return words.length >= 2 ? {first: words[0], second: words[1]} : null;
+        return words.length >= 2 ? {first: words[0], second: words[1]} : null
       })
       .filter((pair) => pair !== null)
 
