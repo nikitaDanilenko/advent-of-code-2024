@@ -1,5 +1,4 @@
 import './App.css'
-import './Solutions/Day01/Day01'
 import {Link} from "react-router-dom"
 import {paths} from "./Paths"
 
