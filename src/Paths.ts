@@ -6,6 +6,8 @@ export type Paths = {
   day04: string,
 }
 
+export const rootPath: string = "/"
+
 export const paths: Paths = {
   root: "/",
   day01: "day01",
