@@ -18,6 +18,9 @@ function App() {
       <section>
         <h2><Link to={paths.day03}>Day 03</Link></h2>
       </section>
+      <section>
+        <h2><Link to={paths.day04}>Day 04</Link></h2>
+      </section>
     </main>
   )
 }

@@ -3,6 +3,7 @@ export type Paths = {
   day01: string,
   day02: string,
   day03: string,
+  day04: string,
 }
 
 export const paths: Paths = {
@@ -10,4 +11,5 @@ export const paths: Paths = {
   day01: "day01",
   day02: "day02",
   day03: "day03",
+  day04: "day04",
 }
