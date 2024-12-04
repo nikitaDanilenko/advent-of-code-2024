@@ -106,8 +106,43 @@ function Day04() {
         return BigInt(count)
     }
 
+    type Cross = {
+        upLeft: Position2d,
+        upRight: Position2d,
+        downLeft: Position2d,
+        downRight: Position2d
+    }
+
+    function crossFromPosition(position: Position2d): Cross {
+        return {
+            upLeft: {x: position.x - 1, y: position.y - 1},
+            upRight: {x: position.x + 1, y: position.y - 1},
+            downLeft: {x: position.x - 1, y: position.y + 1},
+            downRight: {x: position.x + 1, y: position.y + 1}
+        }
+    }
+
+    const matchingCrosses = ["MSMS", "MMSS", "SSMM", "SMSM"]
+
+    function isMatchingPosition(map: Map<StringPosition, string>, stringPosition: StringPosition): boolean {
+        function check() {
+            const actualPosition: Position2d = JSON.parse(stringPosition)
+
+            const cross = crossFromPosition(actualPosition)
+
+            const letters = Object.values(cross).map((position) => map.get(JSON.stringify(position))).join("")
+            return matchingCrosses.includes(letters)
+        }
+
+        return map.get(stringPosition) === "A" && check()
+    }
+
     function solvePart2(puzzleInput: PuzzleInput): bigint {
-        return BigInt(0)
+        const count = Array
+            .from(puzzleInput.map.keys())
+            .filter((position) => isMatchingPosition(puzzleInput.map, position))
+            .length
+        return BigInt(count)
     }
 
     return DayWith(
