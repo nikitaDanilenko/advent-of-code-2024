@@ -1,6 +1,6 @@
-import {Position2d} from "../Utils/Types.ts";
-import DayWith from "../Utils/DayUtil.tsx";
-import lodash from "lodash";
+import {Position2d} from "../Utils/Types.ts"
+import DayWith from "../Utils/DayUtil.tsx"
+import lodash from "lodash"
 
 function Day04() {
 
@@ -154,4 +154,4 @@ function Day04() {
 
 }
 
-export default Day04;
+export default Day04
