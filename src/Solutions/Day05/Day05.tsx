@@ -14,18 +14,18 @@ function Day05() {
 
   type PuzzleInput = {
     // Comparisons are stored as JSON strings to allow for easy and fast (!) comparison
-    comparisons: string[],
+    comparisons: Set<string>,
     updates: Update[]
   }
 
   function parseInput(input: string): PuzzleInput {
     const [comparisonString, updateString] = input.split('\n\n')
-    const comparisons = comparisonString
+    const comparisons = new Set(comparisonString
       .split('\n')
       .map(comparison => {
         const [left, right] = comparison.split('|')
         return JSON.stringify({left: parseInt(left), right: parseInt(right)})
-      })
+      }))
     const updates = updateString
       .split('\n')
       .filter(s => s !== '')
@@ -36,11 +36,11 @@ function Day05() {
     return {comparisons: comparisons, updates: updates}
   }
 
-  function isSmaller(smaller: Smaller, comparisons: string[]): boolean {
-    return lodash.find(comparisons, s => s === JSON.stringify(smaller)) !== undefined
+  function isSmaller(smaller: Smaller, comparisons: Set<string>): boolean {
+    return comparisons.has(JSON.stringify(smaller))
   }
 
-  function checkUpdate(inputComparisons: string[], update: Update): boolean {
+  function checkUpdate(inputComparisons: Set<string>, update: Update): boolean {
     const comparisons = lodash.zipWith(
       lodash.initial(update.numbers),
       lodash.tail(update.numbers),
@@ -88,12 +88,6 @@ function Day05() {
       )
     }
 
-    /* The computation takes a very noticeable amount of time.
-       There are around 100 sort operations, which all take on the order of around 10ms,
-       which adds up to around 1s.
-       Actually, both numbers are slightly higher, but the order of magnitude is correct.
-       A different sorting algorithm may perform better, but BubbleSort is particularly simple to implement.
-     */
     const part2 = BigInt(
       lodash.sum(invalid.map(update => middleElement(bubbleSort(update.numbers))))
     )
