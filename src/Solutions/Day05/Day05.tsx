@@ -74,6 +74,7 @@ function Day05() {
       }
     }
 
+
     function bubbleSort(numbers: number[]): number[] {
       const range = lodash.range(0, numbers.length)
       return lodash.reduce(
@@ -87,6 +88,12 @@ function Day05() {
       )
     }
 
+    /* The computation takes a very noticeable amount of time.
+       There are around 100 sort operations, which all take on the order of around 10ms,
+       which adds up to around 1s.
+       Actually, both numbers are slightly higher, but the order of magnitude is correct.
+       A different sorting algorithm may perform better, but BubbleSort is particularly simple to implement.
+     */
     const part2 = BigInt(
       lodash.sum(invalid.map(update => middleElement(bubbleSort(update.numbers))))
     )
