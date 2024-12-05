@@ -79,8 +79,8 @@ function Day05() {
       return lodash.reduce(
         range,
         (acc, i) => {
-          const front = acc.slice(0, numbers.length - i)
-          const back = acc.slice(numbers.length - i, numbers.length)
+          const front = lodash.take(acc, numbers.length - i)
+          const back = lodash.takeRight(acc, i)
           return bubbleOnce(front).concat(back)
         },
         numbers
