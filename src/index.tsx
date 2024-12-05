@@ -7,8 +7,6 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 )
 
-
-
 const routes = days.map((Day, index) => {
   return <Route path={dayPath(index + 1)} element={<Day/>}/>
 })
