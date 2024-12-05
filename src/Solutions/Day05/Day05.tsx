@@ -1,5 +1,6 @@
 import DayWith from "../Utils/DayUtil.tsx";
 import lodash from "lodash";
+import {Solution} from "../Utils/Types.ts";
 
 function Day05() {
   type Smaller = {
@@ -12,7 +13,8 @@ function Day05() {
   }
 
   type PuzzleInput = {
-    comparisons: Smaller[],
+    // Comparisons are stored as JSON strings to allow for easy and fast (!) comparison
+    comparisons: string[],
     updates: Update[]
   }
 
@@ -22,10 +24,11 @@ function Day05() {
       .split('\n')
       .map(comparison => {
         const [left, right] = comparison.split('|')
-        return {left: parseInt(left), right: parseInt(right)}
+        return JSON.stringify({left: parseInt(left), right: parseInt(right)})
       })
     const updates = updateString
       .split('\n')
+      .filter(s => s !== '')
       .map(update => {
         return {numbers: update.split(',').map(num => parseInt(num))}
       })
@@ -33,36 +36,72 @@ function Day05() {
     return {comparisons: comparisons, updates: updates}
   }
 
-  function solvePart1(input: PuzzleInput): bigint {
+  function isSmaller(smaller: Smaller, comparisons: string[]): boolean {
+    return lodash.find(comparisons, s => s === JSON.stringify(smaller)) !== undefined
+  }
 
-    function checkUpdate(update: Update): boolean {
-      const comparisons = lodash.zipWith(
-        lodash.initial(update.numbers),
-        lodash.tail(update.numbers),
-        (left, right) => ({left: left, right: right})
-      )
+  function checkUpdate(inputComparisons: string[], update: Update): boolean {
+    const comparisons = lodash.zipWith(
+      lodash.initial(update.numbers),
+      lodash.tail(update.numbers),
+      (left, right) => ({left: left, right: right})
+    )
+    return lodash.every(
+      comparisons,
+      (comparison) => isSmaller(comparison, inputComparisons)
+    )
+  }
 
-      return lodash.every(
-        comparisons,
-        (comparison) =>
-          lodash.find(input.comparisons, s => lodash.isEqual(s, comparison))!!
+  function middleElement(numbers: number[]): number {
+    return numbers[(numbers.length - 1) / 2]
+  }
+
+  function solve(input: PuzzleInput): Solution<bigint> {
+    const [valid, invalid] = lodash.partition(input.updates, update => checkUpdate(input.comparisons, update))
+
+    const part1 = BigInt(lodash.sum(valid.map(update => middleElement(update.numbers))))
+
+    function bubbleOnce(numbers: number[]): number[] {
+      if (numbers.length <= 1) {
+        return numbers
+      } else {
+        const [left, right, ...rest] = numbers
+        if (isSmaller({left: left, right: right}, input.comparisons)) {
+          return [left].concat(bubbleOnce([right, ...rest]))
+        } else {
+          return [right].concat(bubbleOnce([left, ...rest]))
+        }
+      }
+    }
+
+    function bubbleSort(numbers: number[]): number[] {
+      const range = lodash.range(0, numbers.length)
+      return lodash.reduce(
+        range,
+        (acc, i) => {
+          const front = acc.slice(0, numbers.length - i)
+          const back = acc.slice(numbers.length - i, numbers.length)
+          return bubbleOnce(front).concat(back)
+        },
+        numbers
       )
     }
 
-    return BigInt(
-      lodash.sum(
-        input.updates
-          .filter(checkUpdate)
-          .map(update => update.numbers[(update.numbers.length - 1) / 2])
-      )
+    const part2 = BigInt(
+      lodash.sum(invalid.map(update => middleElement(bubbleSort(update.numbers))))
     )
+
+    return {
+      part1: part1,
+      part2: part2
+    }
+
   }
 
   return DayWith(
     "05",
     parseInput,
-    solvePart1,
-    (x) => BigInt(0)
+    solve
   )
 }
 
