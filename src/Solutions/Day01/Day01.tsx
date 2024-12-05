@@ -1,7 +1,7 @@
 import {absBigInt, sum} from "../Utils/MathUtil"
 import lodash from "lodash"
 import DayWith from "../Utils/DayUtil.tsx"
-import {Pair} from "../Utils/Types.ts"
+import solutionFrom, {Pair} from "../Utils/Types.ts"
 
 function Day01() {
 
@@ -63,8 +63,10 @@ function Day01() {
   return DayWith<PuzzleInput>(
     "01",
     parseInput,
-    solvePart1,
-    solvePart2
+    solutionFrom(
+      solvePart1,
+      solvePart2
+    )
   )
 }
 

@@ -1,5 +1,6 @@
 import DayWith from "../Utils/DayUtil.tsx"
 import * as _ from "lodash"
+import solutionFrom from "../Utils/Types.ts";
 
 function Day02() {
 
@@ -61,8 +62,10 @@ function Day02() {
   return DayWith<PuzzleInput>(
     "02",
     parseInput,
-    solvePart1,
-    solvePart2
+    solutionFrom(
+      solvePart1,
+      solvePart2
+    )
   )
 
 }

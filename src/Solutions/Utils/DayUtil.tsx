@@ -1,12 +1,12 @@
 import React from "react"
 import {rootPath} from "../../Paths.ts"
 import {Link} from "react-router-dom"
+import {Solution} from "./Types.ts";
 
 function DayWith<PuzzleInput>(
   number: string,
   parseInput: (text: string) => PuzzleInput,
-  solvePart1: (puzzleInput: PuzzleInput) => bigint | string,
-  solvePart2: (puzzleInput: PuzzleInput) => bigint | string,
+  solve: (puzzleInput: PuzzleInput) => Solution<bigint | string>,
 ) {
   const [input, setInput] = React.useState<string>("")
   const [part1, setPart1] = React.useState<bigint | string | undefined>(undefined)
@@ -29,8 +29,9 @@ function DayWith<PuzzleInput>(
 
   function submitForm(input: string): void {
     const parsed = parseInput(input)
-    setPart1(solvePart1(parsed))
-    setPart2(solvePart2(parsed))
+    const {part1, part2} = solve(parsed)
+    setPart1(part1)
+    setPart2(part2)
   }
 
   function resetResponses(): void {

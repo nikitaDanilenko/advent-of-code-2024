@@ -1,4 +1,4 @@
-import {Position2d} from "../Utils/Types.ts"
+import solutionFrom, {Position2d} from "../Utils/Types.ts"
 import DayWith from "../Utils/DayUtil.tsx"
 import lodash from "lodash"
 
@@ -148,8 +148,10 @@ function Day04() {
     return DayWith(
         "04",
         parseInput,
-        solvePart1,
-        solvePart2
+        solutionFrom(
+            solvePart1,
+            solvePart2
+        )
     )
 
 }
