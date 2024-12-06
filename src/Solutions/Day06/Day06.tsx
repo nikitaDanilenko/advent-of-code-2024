@@ -1,5 +1,5 @@
 import DayWith from "../Utils/DayUtil.tsx";
-import solutionFrom, {Position2d} from "../Utils/Types.ts";
+import {Position2d, Solution} from "../Utils/Types.ts";
 
 function Day06() {
 
@@ -42,7 +42,7 @@ function Day06() {
     Right
   }
 
-  function moveAttempt(pos: Position2d, direction: Direction): Position2d {
+  function moveInDirection(pos: Position2d, direction: Direction): Position2d {
     switch (direction) {
       case Direction.Up:
         return {x: pos.x, y: pos.y - 1}
@@ -73,48 +73,82 @@ function Day06() {
   }
 
   function move(pos: Position2d, direction: Direction, width: number, height: number, obstacles: Set<StringPosition>): [Position2d, Direction] | undefined {
-    const newPos = moveAttempt(pos, direction)
-    const newPosString = JSON.stringify(newPos)
-    if (obstacles.has(newPosString)) {
-      return move(pos, rotate(direction), width, height, obstacles)
-    } else if (!validPosition(pos, width, height)) {
-      return undefined
-    } else {
-      return [newPos, direction]
+    let dir =  direction
+    let candidate = moveInDirection(pos, dir)
+    let attempts = 0
+
+    while (obstacles.has(JSON.stringify(candidate)) && attempts < 3) {
+      dir = rotate(dir)
+      candidate = moveInDirection(pos, dir)
+      attempts += 1
     }
+
+    return validPosition(candidate, width, height) ? [candidate, dir] : undefined;
   }
 
   function moveUntilOutside(input: PuzzleInput): Set<StringPosition> {
-
-    let position = input.start
-    let next = move(input.start, Direction.Up, input.width, input.height, input.obstacles)
+    let next: [Position2d, Direction] | undefined = [input.start, Direction.Up]
     let visited = new Set<StringPosition>()
 
-    while(!!next) {
+    while (!!next) {
+      const [position, direction] = next
       visited = visited.add(JSON.stringify(position))
-      const [newPos, newDirection] = next
-      position = newPos
-      next = move(newPos, newDirection, input.width, input.height, input.obstacles)
+      next = move(position, direction, input.width, input.height, input.obstacles)
     }
 
     return visited
   }
 
-  function solvePart1(input: PuzzleInput): bigint {
-    return BigInt(moveUntilOutside(input).size)
+  function isOnLoop(input: PuzzleInput): boolean {
+    let next: [Position2d, Direction] | undefined = [input.start, Direction.Up]
+    let visited = new Set<string>() // position + direction
+    let onLoop = false
+
+    while (!!next) {
+      const [position, direction] = next
+      const newVisited = JSON.stringify({x: position.x, y: position.y, direction: direction})
+      if (visited.has(newVisited)) {
+        onLoop = true
+        break
+      } else {
+        visited = visited.add(newVisited)
+        next = move(position, direction, input.width, input.height, input.obstacles)
+      }
+    }
+
+    return onLoop
   }
 
-  function solvePart2(input: PuzzleInput): bigint {
-    return BigInt(0)
+  function solve(input: PuzzleInput): Solution<bigint> {
+    const visitedInitial = moveUntilOutside(input)
+    const moveCount = BigInt(visitedInitial.size)
+
+    // We only need to check those elements that are not the starting position,
+    // but have been visited otherwise, because other positions cannot be reached.
+    const exceptStart = Array
+      .from(visitedInitial)
+      .filter((position) => position !== JSON.stringify(input.start))
+
+    let onLoop = 0
+
+    exceptStart.forEach((position) => {
+      // Rant: Good grief: 'add' modifies the set in place, but still returns itself.
+      //       Hence, we need a copy of the input to avoid modifying it several times.
+      const modifiedInput = {...input, obstacles: new Set(input.obstacles).add(position)}
+      const c = isOnLoop(modifiedInput)
+      c ? onLoop += 1 : null
+    })
+
+    return {
+      part1: moveCount,
+      part2: BigInt(onLoop)
+    }
   }
 
   return DayWith(
     "06",
     parseInput,
-    solutionFrom(
-      solvePart1,
-      solvePart2
-    )
+    solve
   )
 }
 
