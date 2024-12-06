@@ -72,3 +72,29 @@ There are some caveats:
 3. The automatic deployment to GitHub Pages is a nice feature.
    Initial struggles aside, the deployment is also extremely simple, and the corresponding workflow is very
    straightforward.
+4. TypeScript/JavaScript rants:
+   1. Reference equality for object keys in maps?! Really?
+      This makes maps essentially unusable for object keys.
+      In Elm maps are `Dict`s, and they do only allow basic types as keys.
+      Honestly, the Elm restriction is better than the TS/JS limbo.
+      
+      The same issue applies for `Set`s.
+   2. On the note of `Set`s: Adding an element with `.add` also modifies the set, but the documentation does not mention it.
+      Both are very questionable decisions.
+   3. When I first saw the type `[string, number]` I thought "Great, built-in `HList`!".
+      While that is somewhat true, I find it very odd that the type is never inferred correctly,
+      but immediately defaults to `(string | number)[]`.
+      Granted, the inference is only on the IDE side, but still seeing a lot of squiggly red lines is annoying. 
+      I imagine that deciding which type to use is difficult, but why not add proper tuple types?
+   4. The `return` in functions is annoying on several levels:
+      1. One cannot extract it to say `return (if ... then ... else ...)`.
+         Yes, one can use `?:`, but that is not always readable.
+      2. Missing `return` is not necessarily an error, but just yields `void`,
+         and may lead to proper compilation with odd results.
+      3. There is the lambda syntax for function arguments, where one can omit `return`.
+         This is nice, but inconsistent.
+   5. The support for collection operations like `groupBy` is very poor.
+      The built-in functions are very limited, and the `lodash` substitutes are usually not very good.
+      For example - `zip` does not trim the longer list to the shorter one,
+      and `groupBy` returns an object rather than a map.
+      Yes, the reason is probably the reference equality for keys, but still, the compositionality is lacking.
