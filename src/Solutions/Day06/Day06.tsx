@@ -73,17 +73,15 @@ function Day06() {
   }
 
   function move(pos: Position2d, direction: Direction, width: number, height: number, obstacles: Set<StringPosition>): [Position2d, Direction] | undefined {
-    let dir =  direction
-    let candidate = moveInDirection(pos, dir)
-    let attempts = 0
-
-    while (obstacles.has(JSON.stringify(candidate)) && attempts < 3) {
-      dir = rotate(dir)
-      candidate = moveInDirection(pos, dir)
-      attempts += 1
+    const newPos = moveInDirection(pos, direction)
+    const newPosString = JSON.stringify(newPos)
+    if (obstacles.has(newPosString)) {
+      return move(pos, rotate(direction), width, height, obstacles)
+    } else if (!validPosition(newPos, width, height)) {
+      return undefined
+    } else {
+      return [newPos, direction]
     }
-
-    return validPosition(candidate, width, height) ? [candidate, dir] : undefined;
   }
 
   function moveUntilOutside(input: PuzzleInput): Set<StringPosition> {
