@@ -98,23 +98,24 @@ function Day06() {
   }
 
   function isOnLoop(input: PuzzleInput): boolean {
-    let next: [Position2d, Direction] | undefined = [input.start, Direction.Up]
-    let visited = new Set<string>() // position + direction
-    let onLoop = false
-
-    while (!!next) {
-      const [position, direction] = next
-      const newVisited = JSON.stringify({x: position.x, y: position.y, direction: direction})
-      if (visited.has(newVisited)) {
-        onLoop = true
-        break
+    function iterate(positionWithDirection: [Position2d, Direction] | undefined, visited: Set<string>): boolean {
+      if (!positionWithDirection) {
+        return false
       } else {
-        visited = visited.add(newVisited)
-        next = move(position, direction, input.width, input.height, input.obstacles)
+        const [position, direction] = positionWithDirection
+        const currentPositionWithDirection = JSON.stringify({x: position.x, y: position.y, direction: direction})
+
+        function checkNext() {
+          const newVisited = visited.add(currentPositionWithDirection)
+          const next = move(position, direction, input.width, input.height, input.obstacles)
+          return iterate(next, newVisited)
+        }
+
+        return visited.has(currentPositionWithDirection) || checkNext()
       }
     }
 
-    return onLoop
+    return iterate([input.start, Direction.Up], new Set())
   }
 
   function solve(input: PuzzleInput): Solution<bigint> {
@@ -123,19 +124,18 @@ function Day06() {
 
     // We only need to check those elements that are not the starting position,
     // but have been visited otherwise, because other positions cannot be reached.
-    const exceptStart = Array
+    const onLoop = Array
       .from(visitedInitial)
-      .filter((position) => position !== JSON.stringify(input.start))
-
-    let onLoop = 0
-
-    exceptStart.forEach((position) => {
-      // Rant: Good grief: 'add' modifies the set in place, but still returns itself.
-      //       Hence, we need a copy of the input to avoid modifying it several times.
-      const modifiedInput = {...input, obstacles: new Set(input.obstacles).add(position)}
-      const c = isOnLoop(modifiedInput)
-      c ? onLoop += 1 : null
-    })
+      .filter((position) => {
+        function checkLoop() {
+          // Rant: Good grief: 'add' modifies the set in place, but still returns itself.
+          //       Hence, we need a copy of the input to avoid modifying it several times.
+          const modifiedInput = {...input, obstacles: new Set(input.obstacles).add(position)}
+          return isOnLoop(modifiedInput)
+        }
+        return position !== JSON.stringify(input.start) && checkLoop()
+      })
+      .length
 
     return {
       part1: moveCount,
