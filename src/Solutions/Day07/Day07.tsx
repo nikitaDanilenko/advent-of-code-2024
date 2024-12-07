@@ -14,7 +14,8 @@ type Equation = {
 
 enum Operator {
   Add,
-  Multiply
+  Multiply,
+  Concatenate
 }
 
 function operatorToFunction(op: Operator): (a: bigint, b: bigint) => bigint {
@@ -23,15 +24,17 @@ function operatorToFunction(op: Operator): (a: bigint, b: bigint) => bigint {
       return (a, b) => a + b
     case Operator.Multiply:
       return (a, b) => a * b
+    case Operator.Concatenate:
+      return (a, b) => BigInt(a.toString() + b.toString())
   }
 }
 
-function allOperators(n: number): Operator[][] {
+function allOperators(n: number, allowedOperators: Operator[]): Operator[][] {
   function iterate(remaining: number, built: Operator[][]): Operator[][] {
     if (remaining === 0) {
       return built
     } else {
-      return iterate(remaining - 1, built.flatMap(x => [Operator.Add, Operator.Multiply].map(op => [...x, op])))
+      return iterate(remaining - 1, built.flatMap(x => allowedOperators.map(op => [...x, op])))
     }
   }
 
@@ -66,15 +69,26 @@ function parseInput(text: string): PuzzleInput {
 
 function solve(input: PuzzleInput): Solution<bigint> {
   const maxOperands = input.equations.map(x => x.operands.length).reduce((a, b) => Math.max(a, b)) - 1
-  const allOps = allOperators(maxOperands)
+  const allArithmeticOps = allOperators(maxOperands, [Operator.Add, Operator.Multiply])
 
-  const validEquations = input.equations.filter(eq => {
-    return allOps.some(ops => validEquation(eq, ops))
+  const [validEquations, invalidEquations] = lodash.partition(input.equations, (eq) => {
+    return allArithmeticOps.some(ops => validEquation(eq, ops))
   })
 
+  const validEquationsTargetsSum = sum(validEquations.map((equation) => equation.target))
+
+  const allOps =
+    allOperators(maxOperands, [Operator.Add, Operator.Multiply, Operator.Concatenate])
+      .filter(ops => ops.some(op => op === Operator.Concatenate))
+
+  console.log(allOps.length)
+
+  const validEquationsWithConcatenation = invalidEquations.filter(eq => allOps.some(ops => validEquation(eq, ops)))
+  const validEquationsWithConcatenationTargetsSum = sum(validEquationsWithConcatenation.map((equation) => equation.target))
+
   return {
-    part1: sum(validEquations.map((equation) => equation.target)),
-    part2: BigInt(0)
+    part1: validEquationsTargetsSum,
+    part2: validEquationsTargetsSum + validEquationsWithConcatenationTargetsSum
   }
 }
 
