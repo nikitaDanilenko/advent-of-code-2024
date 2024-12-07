@@ -11,6 +11,7 @@ function DayWith<PuzzleInput>(
   const [input, setInput] = React.useState<string>("")
   const [part1, setPart1] = React.useState<bigint | string | undefined>(undefined)
   const [part2, setPart2] = React.useState<bigint | string | undefined>(undefined)
+  const [duration, setDuration] = React.useState<number>(0)
   const [error, setError] = React.useState<string>("")
 
   function handleTextAreaChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
@@ -29,13 +30,17 @@ function DayWith<PuzzleInput>(
 
   function submitForm(input: string): void {
     const parsed = parseInput(input)
+    const start = Date.now()
     const {part1, part2} = solve(parsed)
+    const end = Date.now()
+    setDuration(end - start)
     setPart1(part1)
     setPart2(part2)
   }
 
   function resetResponses(): void {
     setError('')
+    setDuration(0)
     setPart1(undefined)
     setPart2(undefined)
   }
@@ -77,6 +82,7 @@ function DayWith<PuzzleInput>(
         </form>
       </section>
       {error !== '' ? errorBlock : responseBlock}
+      {duration > 0 && <p>{`Duration: ${duration}ms`}</p>}
     </main>
 
   return page
