@@ -1,7 +1,8 @@
 import DayWith from "../Utils/DayUtil.tsx";
-import {Pair, Solution} from "../Utils/Types.ts";
+import {Solution} from "../Utils/Types.ts";
 import lodash from "lodash";
 import {sum} from "../Utils/MathUtil.ts";
+import {foldrM} from "../Utils/CollectionUtil.ts";
 
 type PuzzleInput = {
   equations: Equation[]
@@ -12,57 +13,44 @@ type Equation = {
   operands: bigint[]
 }
 
-enum Operator {
-  Add,
-  Multiply,
-  Concatenate
+function invertAddition(operand: bigint, target: bigint): bigint | undefined {
+  return target >= operand ? target - operand : undefined
 }
 
-function operatorToFunction(op: Operator): (a: bigint, b: bigint) => bigint {
-  switch (op) {
-    case Operator.Add:
-      return (a, b) => a + b
-    case Operator.Multiply:
-      return (a, b) => a * b
-    case Operator.Concatenate:
-      return (a, b) => BigInt(a.toString() + b.toString())
+function invertMultiplication(operand: bigint, target: bigint): bigint | undefined {
+  return target % operand === BigInt(0) ? target / operand : undefined
+}
+
+function invertConcatenation(operand: bigint, target: bigint): bigint | undefined {
+  const operandString = operand.toString()
+  const targetString = target.toString()
+  if (targetString.endsWith(operandString)) {
+    return BigInt(lodash.dropRight(targetString.split(""), operandString.length).join(""))
+  } else {
+    return undefined
   }
 }
 
-function allOperators(n: number, allowedOperators: Operator[]): Operator[][] {
-  function iterate(remaining: number, built: Operator[][]): Operator[][] {
-    if (remaining === 0) {
-      return built
-    } else {
-      return iterate(remaining - 1, built.flatMap(x => allowedOperators.map(op => [...x, op])))
-    }
+const arithmeticInverters = [invertAddition, invertMultiplication]
+const allInverters = [invertAddition, invertMultiplication, invertConcatenation]
+
+function validEquation(equation: Equation, inverters: ((x: bigint, target: bigint) => bigint | undefined)[]): boolean {
+
+  function outcomes(x: bigint, y: bigint): bigint[] {
+    return inverters
+      .map(inverter => inverter(x, y))
+      .filter(x => x !== undefined)
   }
 
-  return iterate(n, [[]])
-}
+  // Attempt to iterate backward: Starting from the target, apply the inverse of all available operations to the target,
+  // and the right-most operand.
+  // Doing this iteratively, we reach a list of values after all inverses have been applied.
+  // Now, we check if the list contains 0. One could save an extra operation,
+  // because the last decomposition is only relevant if it leads to a zero,
+  // i.e. one could also use 'tail(equation.operands)' and compare to 'equation.operands[0]'.
+  const options = foldrM(outcomes, equation.target, equation.operands)
 
-function validEquation(equation: Equation, operators: Operator[]): boolean {
-  const rest = lodash.tail(equation.operands)
-  const zipped = lodash
-    .zipWith(lodash.take(operators, rest.length), rest, (x, y) => {
-      return {first: x, second: y}
-    })
-
-  function checkIteratively(currentAccumulator: bigint, remaining: Pair<Operator, bigint>[]): boolean {
-    if (remaining.length === 0) {
-      return currentAccumulator === equation.target
-    }
-    else if (currentAccumulator > equation.target) {
-      return false
-    }
-    else {
-      const [{first: op, second: operand}, ...rest] = remaining
-      const nextAccumulator = operatorToFunction(op)(currentAccumulator, operand)
-      return checkIteratively(nextAccumulator, rest)
-    }
-  }
-
-  return checkIteratively(equation.operands[0], zipped)
+  return options.some(x => x === BigInt(0))
 }
 
 function parseInput(text: string): PuzzleInput {
@@ -78,20 +66,13 @@ function parseInput(text: string): PuzzleInput {
 }
 
 function solve(input: PuzzleInput): Solution<bigint> {
-  const maxOperands = input.equations.map(x => x.operands.length).reduce((a, b) => Math.max(a, b)) - 1
-  const allArithmeticOps = allOperators(maxOperands, [Operator.Add, Operator.Multiply])
-
   const [validEquations, invalidEquations] = lodash.partition(input.equations, (eq) => {
-    return allArithmeticOps.some(ops => validEquation(eq, ops))
+    return validEquation(eq, arithmeticInverters)
   })
 
   const validEquationsTargetsSum = sum(validEquations.map((equation) => equation.target))
 
-  const allOps =
-    allOperators(maxOperands, [Operator.Add, Operator.Multiply, Operator.Concatenate])
-      .filter(ops => ops.some(op => op === Operator.Concatenate))
-
-  const validEquationsWithConcatenation = invalidEquations.filter(eq => allOps.some(ops => validEquation(eq, ops)))
+  const validEquationsWithConcatenation = invalidEquations.filter(equation => validEquation(equation, allInverters))
   const validEquationsWithConcatenationTargetsSum = sum(validEquationsWithConcatenation.map((equation) => equation.target))
 
   return {
