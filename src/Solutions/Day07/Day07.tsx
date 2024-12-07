@@ -1,5 +1,5 @@
 import DayWith from "../Utils/DayUtil.tsx";
-import {Solution} from "../Utils/Types.ts";
+import {Pair, Solution} from "../Utils/Types.ts";
 import lodash from "lodash";
 import {sum} from "../Utils/MathUtil.ts";
 
@@ -47,12 +47,22 @@ function validEquation(equation: Equation, operators: Operator[]): boolean {
     .zipWith(lodash.take(operators, rest.length), rest, (x, y) => {
       return {first: x, second: y}
     })
-    .reduce((acc, pair) => {
-        return operatorToFunction(pair.first)(acc, pair.second)
-      }
-      , equation.operands[0])
 
-  return zipped === equation.target
+  function checkIteratively(currentAccumulator: bigint, remaining: Pair<Operator, bigint>[]): boolean {
+    if (remaining.length === 0) {
+      return currentAccumulator === equation.target
+    }
+    else if (currentAccumulator > equation.target) {
+      return false
+    }
+    else {
+      const [{first: op, second: operand}, ...rest] = remaining
+      const nextAccumulator = operatorToFunction(op)(currentAccumulator, operand)
+      return checkIteratively(nextAccumulator, rest)
+    }
+  }
+
+  return checkIteratively(equation.operands[0], zipped)
 }
 
 function parseInput(text: string): PuzzleInput {
@@ -80,8 +90,6 @@ function solve(input: PuzzleInput): Solution<bigint> {
   const allOps =
     allOperators(maxOperands, [Operator.Add, Operator.Multiply, Operator.Concatenate])
       .filter(ops => ops.some(op => op === Operator.Concatenate))
-
-  console.log(allOps.length)
 
   const validEquationsWithConcatenation = invalidEquations.filter(eq => allOps.some(ops => validEquation(eq, ops)))
   const validEquationsWithConcatenationTargetsSum = sum(validEquationsWithConcatenation.map((equation) => equation.target))
