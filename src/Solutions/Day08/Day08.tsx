@@ -1,6 +1,7 @@
 import DayWith from "../Utils/DayUtil.tsx";
 import {Position2d} from "../Utils/Types.ts";
 import lodash from "lodash";
+import {applyN} from "../Utils/MathUtil.ts";
 
 type StringPosition2d = string
 
@@ -46,7 +47,7 @@ function validPosition(position: Position2d, width: number, height: number): boo
   return position.x >= 0 && position.x < width && position.y >= 0 && position.y < height
 }
 
-function antiNodes(positions: string[], width: number, height: number): string[] {
+function antiNodes(positions: string[], repetitions: number, width: number, height: number): string[] {
   const nodes = positions
     .flatMap((position1) => {
       return positions.map((position2) => {
@@ -54,11 +55,13 @@ function antiNodes(positions: string[], width: number, height: number): string[]
       })
     })
     .filter(([position1, position2]) => position1 !== position2)
-    .map(([position1, position2]) => {
+    .flatMap(([position1, position2]) => {
       const pos1 = JSON.parse(position1)
       const pos2 = JSON.parse(position2)
       const difference = minus(pos2, pos1)
-      return plus(pos2, difference)
+
+      const repeated = applyN<Position2d>(repetitions, (pos) => { return plus(pos, difference) }, pos2)
+      return repeated
     })
     .filter((position) => {
       return validPosition(position, width, height)
@@ -85,17 +88,29 @@ function solve(input: PuzzleInput) {
       .filter(([char]) => char !== ".")
   const byCharacterMap = new Map(byCharacter)
 
-  const byKey = Array
+  const byKey1 = Array
     .from(byCharacterMap.keys())
     .map((key) => {
-      return antiNodes(byCharacterMap.get(key)!!, input.width, input.height)
+      return antiNodes(byCharacterMap.get(key)!!, 1, input.width, input.height)
     })
 
-  const all = lodash.union(...byKey)
+  const all1 = lodash.union(...byKey1)
+
+  const byKey2 = Array
+    .from(byCharacterMap.keys())
+    .map((key) => {
+      // This is a HUGE overestimation, because even in the worst case scenario we only add at most input.width
+      // anti-nodes, and not 2*input.width.
+      // BUT: The implementation is very simple, correct, and the runtime is still significantly below 1 second,
+      // which is good enough for me.
+      return antiNodes(byCharacterMap.get(key)!!, input.width, input.width, input.height)
+    })
+
+  const all2 = lodash.union(...byKey2)
 
   return {
-    part1: BigInt(all.length),
-    part2: BigInt(0)
+    part1: BigInt(all1.length),
+    part2: BigInt(all2.length)
   }
 }
 
