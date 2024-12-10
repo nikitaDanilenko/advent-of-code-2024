@@ -4,7 +4,8 @@ import lodash from "lodash";
 import {sum} from "../Utils/MathUtil.ts";
 
 type PuzzleInput = {
-  disk: string[]
+  disk: string[],
+  original: string
 }
 
 function parse(input: string): PuzzleInput {
@@ -21,7 +22,8 @@ function parse(input: string): PuzzleInput {
     }))
 
   return {
-    disk: disk
+    disk: disk,
+    original: input
   }
 }
 
@@ -87,6 +89,101 @@ function combineViaLoop(leftToRight: string[], rightToLeftNonEmpty: string[], ta
   return lodash.take(combined, targetCells)
 }
 
+type Block = {
+  index: number | undefined, // undefined means empty
+  length: number,
+  start: number
+}
+
+function toBlocks(array: string[]): Block[] {
+  const [blocks,] = array
+    .map((x, index) => {
+      return {length: parseInt(x), index: index % 2 === 0 ? index / 2 : undefined}
+    })
+    .reduce(([blocks, currentIndex], {length, index}) => {
+        const block = {length: length, index: index, start: currentIndex}
+        return [[...blocks, block], currentIndex + length] as [Block[], number]
+      },
+      [[], 0] as [Block[], number]
+    )
+  return blocks
+}
+
+function solvePart2(input: string): bigint {
+  const disk = input.split('')
+  const blocks = toBlocks(disk)
+  const numberOfFiles = blocks.filter(x => x.index !== undefined).length
+
+  // Call only if the file block already fits into the empty block.
+  function place(fileBlock: Block, emptyBlock: Block): Block[] {
+    if (fileBlock.length < emptyBlock.length) {
+      return [
+        {
+          index: fileBlock.index,
+          length: fileBlock.length,
+          start: emptyBlock.start
+        },
+        {
+          index: undefined,
+          length: emptyBlock.length - fileBlock.length,
+          start: emptyBlock.start + fileBlock.length
+        }
+      ]
+    } else {
+      return [{...emptyBlock, index: fileBlock.index}]
+    }
+  }
+
+  // Same story as with the other iteration: Recursion is too deep
+  function iterateBlocksViaLoop(disk: Block[]): Block[] {
+
+    /**
+     * I had thought about the same approach for the first part, but it felt too complicated because the file would have needed splitting.
+     *
+     * However, for the second part, the direct approach is actually simpler.
+     * We store blocks in their order of appearance.
+     * Now for every file from the back we attempt to find the leftmost fitting empty block, i.e. a block, whose length is at least that of the file.
+     * The empty block is then split into one or two blocks - the first is always the moved file, and the optional second is the remaining free space.
+     * We continue, until we found enough blocks.
+     *
+     * Quadratic complexity, but still ok-ish.
+     */
+    let remainingFiles = Array(...disk.filter(x => x.index !== undefined)).reverse()
+    let currentNumberOfFiles = 0
+    while (currentNumberOfFiles < numberOfFiles) {
+      const [nextFile, ...nextRemainingFiles] = remainingFiles
+      remainingFiles = nextRemainingFiles
+      currentNumberOfFiles++
+      // The block needs to be earlier than the file, because otherwise we may move files from the front to the back
+      const fittingEmptyBlock = lodash.find(disk, x => x.index === undefined && x.length >= nextFile.length && x.start <= nextFile.start)
+      if (fittingEmptyBlock !== undefined) {
+        const newArea = place(nextFile, fittingEmptyBlock)
+        const indexOfEmptyBlock = lodash.findIndex(disk, x => x.start === fittingEmptyBlock.start)
+        const diskWithoutFile = disk.map(x => {
+          return x.index === nextFile.index ? {...x, index: undefined} : x;
+        })
+        disk = [...diskWithoutFile.slice(0, indexOfEmptyBlock), ...newArea, ...diskWithoutFile.slice(indexOfEmptyBlock + 1)]
+      }
+    }
+    return disk
+  }
+
+  const finalDisk = iterateBlocksViaLoop(blocks)
+  const part2 = sum(
+    finalDisk
+      .filter(x => x.index !== undefined)
+      .map(x => {
+        const range = lodash.range(0, x.length)
+        const index = BigInt(x.index!!)
+        const subSum = sum(range.map(y => BigInt(x.start + y) * index))
+        return subSum
+      })
+  )
+
+  return part2
+}
+
+
 function solve(input: PuzzleInput): Solution<bigint> {
   const diskArray = input.disk
   const targetCells = diskArray.filter(x => x !== empty).length
@@ -95,12 +192,11 @@ function solve(input: PuzzleInput): Solution<bigint> {
 
   return {
     part1: part1,
-    part2: BigInt(0),
+    part2: solvePart2(input.original)
   }
 }
 
 function Day09() {
-
   return DayWith(
     "09",
     parse,
