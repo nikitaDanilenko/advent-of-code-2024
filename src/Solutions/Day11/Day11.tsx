@@ -64,6 +64,7 @@ function computeViaAmount(iterations: number, stones: Stone[]): Amounts {
   const amountMap =
     stones.map(stone => [stone.toString(), 1] as [string, number])
 
+  // The "+1" is necessary, because applyN is 0-based, i.e. the first element is the unmodified input.
   return lodash.last(applyN(iterations + 1, blink, amountMap))!!
 }
 
