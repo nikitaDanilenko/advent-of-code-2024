@@ -9,6 +9,7 @@ import Day07 from "./Solutions/Day07/Day07.tsx"
 import Day08 from "./Solutions/Day08/Day08.tsx"
 import Day09 from "./Solutions/Day09/Day09.tsx"
 import Day10 from "./Solutions/Day10/Day10.tsx"
+import Day11 from "./Solutions/Day11/Day11.tsx"
 
 export const rootPath: string = "/"
 
@@ -22,7 +23,8 @@ export const days: (() => React.JSX.Element)[] = [
   Day07,
   Day08,
   Day09,
-  Day10
+  Day10,
+  Day11
 ]
 
 function padToTwoDigits(day: number): string {
