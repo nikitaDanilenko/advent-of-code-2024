@@ -24,6 +24,7 @@ function neighborPositions(position: Position2d): Position2d[] {
     {x: position.x, y: position.y + 1}
   ]
 }
+
 // BFS, but we do not need to keep track of visited nodes, because there is never a way back.
 function successors(position: Position2d, map: NumberMap): Position2d[] {
   const candidates = neighborPositions(position)
@@ -35,6 +36,31 @@ function successors(position: Position2d, map: NumberMap): Position2d[] {
   }))
 
   return connected
+}
+
+type Path = Position2d[]
+
+// Yes, one could abstract this into a general function (see vector matrix multiplication),
+// but here it feels like too much of a hassle.
+function successorsWithPaths(positionWithPaths: [Position2d, Path[]], map: NumberMap): [Position2d, Path[]][] {
+  const [position, paths] = positionWithPaths
+  const candidates = neighborPositions(position)
+  const atPosition = map.get(JSON.stringify(position))!!
+  const connected = candidates.flatMap((candidate) => {
+    const key = JSON.stringify(candidate)
+    const value = map.get(key)
+    const extendedPaths = paths.map((path) => [...path, candidate])
+    return (!!value && atPosition === value - 1) ? [[candidate, extendedPaths]] as [Position2d, Path[]][] : [] as [Position2d, Path[]][]
+  })
+  return connected
+}
+
+function successorsListWithPaths(positions: [Position2d, Path[]][], map: NumberMap): [Position2d, Path[]][] {
+  return positions.flatMap((position) => successorsWithPaths(position, map))
+}
+
+function successorsNWithPaths(positions: [Position2d, Path[]][], map: NumberMap, steps: number): [Position2d, Path[]][] {
+  return lodash.range(0, steps).reduce((acc, _) => successorsListWithPaths(acc, map), positions)
 }
 
 function successorsList(positions: Position2d[], map: NumberMap): Position2d[] {
@@ -61,9 +87,20 @@ function solve(input: PuzzleInput): Solution<bigint> {
   const endPositions =
     lodash.sum(startPositions.map((position) => successorsN([position], input.map, steps).length))
 
+  const endPositionsWithPaths =
+    lodash.sum(startPositions.map((position) => {
+      const targets = successorsNWithPaths([[position, [[]]]], input.map, steps)
+      const fullPathNumbers = targets.map(target => {
+        const [p, paths] = target
+        const fullPaths = new Set(paths.map(path => JSON.stringify([...path, p]))).size
+        return fullPaths
+      })
+      return lodash.sum(fullPathNumbers)
+    }))
+
   return {
     part1: BigInt(endPositions),
-    part2: BigInt(0)
+    part2: BigInt(endPositionsWithPaths)
   }
 }
 
