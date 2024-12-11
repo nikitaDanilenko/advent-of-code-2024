@@ -1,8 +1,8 @@
-import DayWith from "../Utils/DayUtil.tsx";
-import {Solution} from "../Utils/Types.ts";
-import lodash from "lodash";
-import {sum} from "../Utils/MathUtil.ts";
-import {foldrM} from "../Utils/CollectionUtil.ts";
+import DayWith from "../Utils/DayUtil.tsx"
+import {Solution} from "../Utils/Types.ts"
+import lodash from "lodash"
+import {sum} from "../Utils/MathUtil.ts"
+import {foldrM} from "../Utils/CollectionUtil.ts"
 
 type PuzzleInput = {
   equations: Equation[]

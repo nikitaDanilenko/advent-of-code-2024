@@ -1,6 +1,6 @@
 import DayWith from "../Utils/DayUtil.tsx"
 import * as _ from "lodash"
-import solutionFrom from "../Utils/Types.ts";
+import solutionFrom from "../Utils/Types.ts"
 
 function Day02() {
 

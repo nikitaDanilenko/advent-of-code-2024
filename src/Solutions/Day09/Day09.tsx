@@ -1,7 +1,7 @@
-import DayWith from "../Utils/DayUtil.tsx";
-import {Solution} from "../Utils/Types.ts";
-import lodash from "lodash";
-import {sum} from "../Utils/MathUtil.ts";
+import DayWith from "../Utils/DayUtil.tsx"
+import {Solution} from "../Utils/Types.ts"
+import lodash from "lodash"
+import {sum} from "../Utils/MathUtil.ts"
 
 type PuzzleInput = {
   disk: string[],
@@ -160,7 +160,7 @@ function solvePart2(input: string): bigint {
         const newArea = place(nextFile, fittingEmptyBlock)
         const indexOfEmptyBlock = lodash.findIndex(disk, x => x.start === fittingEmptyBlock.start)
         const diskWithoutFile = disk.map(x => {
-          return x.index === nextFile.index ? {...x, index: undefined} : x;
+          return x.index === nextFile.index ? {...x, index: undefined} : x
         })
         disk = [...diskWithoutFile.slice(0, indexOfEmptyBlock), ...newArea, ...diskWithoutFile.slice(indexOfEmptyBlock + 1)]
       }

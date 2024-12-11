@@ -1,7 +1,7 @@
 import React from "react"
 import {rootPath} from "../../Paths.ts"
 import {Link} from "react-router-dom"
-import {Solution} from "./Types.ts";
+import {Solution} from "./Types.ts"
 
 function DayWith<PuzzleInput>(
   number: string,

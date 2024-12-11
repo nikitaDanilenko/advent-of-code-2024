@@ -1,7 +1,7 @@
-import DayWith from "../Utils/DayUtil.tsx";
-import {Position2d} from "../Utils/Types.ts";
-import lodash from "lodash";
-import {applyN} from "../Utils/MathUtil.ts";
+import DayWith from "../Utils/DayUtil.tsx"
+import {Position2d} from "../Utils/Types.ts"
+import lodash from "lodash"
+import {applyN} from "../Utils/MathUtil.ts"
 
 type StringPosition2d = string
 
@@ -123,4 +123,4 @@ function Day08() {
   )
 }
 
-export default Day08;
+export default Day08

@@ -1,7 +1,7 @@
 import DayWith from "../Utils/DayUtil.tsx"
 import {sum} from "../Utils/MathUtil.ts"
 import {takeUntilRemainderStartsWith} from "../Utils/CollectionUtil.ts"
-import solutionFrom from "../Utils/Types.ts";
+import solutionFrom from "../Utils/Types.ts"
 
 const multiplicationRegExp = /mul\((\d+),(\d+)\)/g
 
