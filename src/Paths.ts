@@ -3,12 +3,12 @@ import Day01 from "./Solutions/Day01/Day01.tsx"
 import Day02 from "./Solutions/Day02/Day02.tsx"
 import Day03 from "./Solutions/Day03/Day03.tsx"
 import Day04 from "./Solutions/Day04/Day04.tsx"
-import Day05 from "./Solutions/Day05/Day05.tsx";
-import Day06 from "./Solutions/Day06/Day06.tsx";
-import Day07 from "./Solutions/Day07/Day07.tsx";
-import Day08 from "./Solutions/Day08/Day08.tsx";
-import Day09 from "./Solutions/Day09/Day09.tsx";
-import Day10 from "./Solutions/Day10/Day10.tsx";
+import Day05 from "./Solutions/Day05/Day05.tsx"
+import Day06 from "./Solutions/Day06/Day06.tsx"
+import Day07 from "./Solutions/Day07/Day07.tsx"
+import Day08 from "./Solutions/Day08/Day08.tsx"
+import Day09 from "./Solutions/Day09/Day09.tsx"
+import Day10 from "./Solutions/Day10/Day10.tsx"
 
 export const rootPath: string = "/"
 
