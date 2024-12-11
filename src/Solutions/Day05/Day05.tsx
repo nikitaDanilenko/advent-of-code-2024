@@ -1,6 +1,6 @@
-import DayWith from "../Utils/DayUtil.tsx";
-import lodash from "lodash";
-import {Solution} from "../Utils/Types.ts";
+import DayWith from "../Utils/DayUtil.tsx"
+import lodash from "lodash"
+import {Solution} from "../Utils/Types.ts"
 
 function Day05() {
   type Smaller = {

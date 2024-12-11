@@ -1,5 +1,5 @@
-import DayWith from "../Utils/DayUtil.tsx";
-import {Position2d, Solution} from "../Utils/Types.ts";
+import DayWith from "../Utils/DayUtil.tsx"
+import {Position2d, Solution} from "../Utils/Types.ts"
 
 function Day06() {
 
@@ -150,4 +150,4 @@ function Day06() {
   )
 }
 
-export default Day06;
+export default Day06

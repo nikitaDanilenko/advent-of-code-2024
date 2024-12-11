@@ -1,27 +1,16 @@
 import solutionFrom, {Position2d} from "../Utils/Types.ts"
 import DayWith from "../Utils/DayUtil.tsx"
 import lodash from "lodash"
+import {parseStringPositionMap, StringPosition, StringPositionMap} from "../Utils/InputUtil.ts"
 
 function Day04() {
 
-    // Good grief, this is horrible!
-    // The issue is that Maps use reference equality on keys, i.e. manually constructed keys will not work.
-    // The 'stringify' function is a hack, and feels extremely wrong!
-    type StringPosition = string
-
     type PuzzleInput = {
-        map: Map<StringPosition, string>
+        map: StringPositionMap
     }
 
     function parseInput(input: string): PuzzleInput {
-        const map = input.split("\n").flatMap(
-            (line, y) => {
-                return Array
-                    .from(line)
-                    .map<[StringPosition, string]>((char, x) => {
-                        return [JSON.stringify({x: x, y: y}), char]
-                    })
-            })
+        const map = parseStringPositionMap(input)
         return {map: new Map(map)}
     }
 
