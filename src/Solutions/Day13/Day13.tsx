@@ -1,6 +1,6 @@
 import {Solution} from "../Utils/Types.ts"
 import DayWith from "../Utils/DayUtil.tsx"
-import {sum} from "../Utils/MathUtil.ts";
+import {sum} from "../Utils/MathUtil.ts"
 
 type Vector2d = {
   x: bigint,
