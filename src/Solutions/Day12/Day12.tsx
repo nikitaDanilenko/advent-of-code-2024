@@ -87,15 +87,15 @@ function allNeighbourhoods(map: Map<string, Symbol>): Cell[][] {
   return neighbourhoods
 }
 
+function area(cells: Cell[]): bigint {
+  return BigInt(cells.length)
+}
+
+function perimeter(cells: Cell[]): bigint {
+  return BigInt(lodash.sum(cells.map(cell => 4 - cell.neighbours)))
+}
+
 function solution1(cellsBlocks: Cell[][]): bigint {
-  function area(cells: Cell[]): bigint {
-    return BigInt(cells.length)
-  }
-
-  function perimeter(cells: Cell[]): bigint {
-    return BigInt(lodash.sum(cells.map(cell => 4 - cell.neighbours)))
-  }
-
   return sum(cellsBlocks.map(cells => {
     const a = area(cells)
     const p = perimeter(cells)
