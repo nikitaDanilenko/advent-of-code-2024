@@ -1,7 +1,7 @@
 import {parseStringPositionMap, StringPosition} from "../Utils/InputUtil.ts"
 import {Position2d, Solution} from "../Utils/Types.ts"
 import DayWith from "../Utils/DayUtil.tsx"
-import lodash from "lodash";
+import lodash from "lodash"
 
 type NumberMap = Map<StringPosition, number>
 

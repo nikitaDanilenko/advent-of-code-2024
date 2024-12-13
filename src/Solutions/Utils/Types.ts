@@ -8,6 +8,15 @@ export type Position2d = {
   y: number
 }
 
+export function neighbours(position: Position2d): Position2d[] {
+  return [
+    {x: position.x - 1, y: position.y},
+    {x: position.x + 1, y: position.y},
+    {x: position.x, y: position.y - 1},
+    {x: position.x, y: position.y + 1}
+  ]
+}
+
 export type Solution<T> = {
   part1: T,
   part2: T
