@@ -1,11 +1,16 @@
-import {Position2d, Solution} from "../Utils/Types.ts"
+import {Solution} from "../Utils/Types.ts"
 import DayWith from "../Utils/DayUtil.tsx"
 import {sum} from "../Utils/MathUtil.ts";
 
+type Vector2d = {
+  x: bigint,
+  y: bigint
+}
+
 type Equation = {
-  a: Position2d,
-  b: Position2d,
-  target: Position2d
+  a: Vector2d,
+  b: Vector2d,
+  target: Vector2d
 }
 
 type PuzzleInput = {
@@ -16,13 +21,13 @@ const buttonARegExp = /Button A: X\+(\d+), Y\+(\d+)/g
 const buttonBRegExp = /Button B: X\+(\d+), Y\+(\d+)/g
 const targetRegExp = /Prize: X=(\d+), Y=(\d+)/g
 
-function parsePositionFrom(line: string, regExp: RegExp): Position2d {
+function parsePositionFrom(line: string, regExp: RegExp): Vector2d {
   // Unsafe, but crashing is fine (error message is clear enough).
   // Afterthought: This is very ugly, and very unsafe! Why do matchAll, and match return such different results?
   const matches = Array.from(line.matchAll(regExp))[0]
   return {
-    x: parseInt(matches[1]),
-    y: parseInt(matches[2])
+    x: BigInt(matches[1]),
+    y: BigInt(matches[2])
   }
 }
 
@@ -60,10 +65,10 @@ function solveEquation(equation: Equation): [bigint, bigint] | undefined {
   const denominatorR = equation.a.x * equation.b.y - equation.b.x * equation.a.y
   const numeratorR = equation.b.y * equation.target.x - equation.b.x * equation.target.y
 
-  if (numeratorR % denominatorR === 0) {
+  if (numeratorR % denominatorR === 0n) {
     const r = numeratorR / denominatorR
     const numeratorS = equation.target.y - r * equation.a.y
-    if (numeratorS % equation.b.y === 0) {
+    if (numeratorS % equation.b.y === 0n) {
       const s = numeratorS / equation.b.y
 
       return [BigInt(r), BigInt(s)]
@@ -81,6 +86,8 @@ function solve1(equations: Equation[]): bigint {
 
   return sum(solutions)
 }
+
+
 
 function solve(input: PuzzleInput): Solution<bigint> {
   return {
