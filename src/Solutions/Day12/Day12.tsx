@@ -107,8 +107,115 @@ function solve(input: PuzzleInput): Solution<bigint> {
   const neighbourhoods = allNeighbourhoods(input.map)
   return {
     part1: solution1(neighbourhoods),
-    part2: BigInt(0)
+    part2: solution2(neighbourhoods)
   }
+}
+
+enum Direction {
+  Up, Right, Down, Left
+}
+
+function nextDirection(direction: Direction): Direction {
+  return (direction + 1) % 4
+}
+
+function inDirection(position: Position2d, direction: Direction): Position2d {
+  switch (direction) {
+    case Direction.Up:
+      return {x: position.x, y: position.y - 1}
+    case Direction.Right:
+      return {x: position.x + 1, y: position.y}
+    case Direction.Down:
+      return {x: position.x, y: position.y + 1}
+    case Direction.Left:
+      return {x: position.x - 1, y: position.y}
+  }
+}
+
+enum Diagonal {
+  UpRight, DownRight, DownLeft, UpLeft
+}
+
+function clockwise(direction: Direction): Diagonal {
+  switch (direction) {
+    case Direction.Up:
+      return Diagonal.UpRight
+    case Direction.Right:
+      return Diagonal.DownRight
+    case Direction.Down:
+      return Diagonal.DownLeft
+    case Direction.Left:
+      return Diagonal.UpLeft
+  }
+}
+
+const directions = [Direction.Up, Direction.Right, Direction.Down, Direction.Left]
+
+function diagonal(position: Position2d, diagonal: Diagonal): Position2d {
+  switch(diagonal) {
+    case Diagonal.UpRight:
+      return {x: position.x + 1, y: position.y - 1}
+    case Diagonal.DownRight:
+      return {x: position.x + 1, y: position.y + 1}
+    case Diagonal.DownLeft:
+      return {x: position.x - 1, y: position.y + 1}
+    case Diagonal.UpLeft:
+      return {x: position.x - 1, y: position.y - 1}
+  }
+}
+
+function isInCellBlock(position: Position2d, cells: Cell[]): boolean {
+  return lodash.some(cells, cell => lodash.isEqual(cell.position, position))
+}
+
+function sides(cells: Cell[]): bigint {
+  const allSides = cells.map(cell => {
+    const sides = directions.filter(direction => {
+      const neighbour = inDirection(cell.position, direction)
+      const inCellBlock = isInCellBlock(neighbour, cells)
+      /* If the neighbour in that direction is in the area,
+         we have something like AA (with direction Right),
+         i.e. no new sides can be added from the point of view of the leftmost A.
+       */
+      if (inCellBlock) {
+        return false
+      }
+      else {
+        const nextDir = nextDirection(direction)
+        const nextNeighbour = inDirection(cell.position, nextDir)
+        /* We now cover the following cases, where the direction is still Right:
+
+           AX The neighbour at X is not in the cell block, and also Z is not in the cell block
+           Z?
+
+           and
+
+           AX The diagonal DownRight is in the cell block, meaning that the lower right corner needs to be A, too.
+           AA
+
+           In the first case, we have a new side, because we changed directions.
+           In the second case, there is also a directional change, but in the other direction.
+         */
+
+        const rotatedIsNotInCellBlock = !isInCellBlock(nextNeighbour, cells)
+        const nextDiagonal = clockwise(direction)
+        const diagonalNeighbour = diagonal(cell.position, nextDiagonal)
+        const diagonalInCellBlock = isInCellBlock(diagonalNeighbour, cells)
+
+        return rotatedIsNotInCellBlock || diagonalInCellBlock;
+      }
+
+    }).length
+    return sides
+  })
+
+  const total = lodash.sum(allSides)
+
+  return BigInt(total)
+}
+
+function solution2(cellsBlocks: Cell[][]): bigint {
+  return sum(cellsBlocks.map(cell => sides(cell) * area(cell)))
 }
 
 function Day12() {
