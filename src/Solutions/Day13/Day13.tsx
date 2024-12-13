@@ -13,6 +13,13 @@ type Equation = {
   target: Vector2d
 }
 
+function addConstant(constant: bigint, vector: Vector2d): Vector2d {
+  return {
+    x: vector.x + constant,
+    y: vector.y + constant
+  }
+}
+
 type PuzzleInput = {
   equations: Equation[]
 }
@@ -87,12 +94,19 @@ function solve1(equations: Equation[]): bigint {
   return sum(solutions)
 }
 
-
+// The "cheapest" and the "at most 100 times" are still entirely irrelevant for the second part.
+function solve2(equations: Equation[]): bigint {
+  const correctedEquations = equations
+    .map(equation => {
+      return {...equation, target: addConstant(BigInt(10000000000000), equation.target)}
+    })
+  return solve1(correctedEquations)
+}
 
 function solve(input: PuzzleInput): Solution<bigint> {
   return {
     part1: solve1(input.equations),
-    part2: 0n
+    part2: solve2(input.equations)
   }
 }
 
