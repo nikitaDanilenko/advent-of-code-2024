@@ -1,7 +1,7 @@
 import {neighbours, Position2d, Solution} from "../Utils/Types.ts"
 import DayWith from "../Utils/DayUtil.tsx"
-import lodash from "lodash";
-import {sum} from "../Utils/MathUtil.ts";
+import lodash from "lodash"
+import {sum} from "../Utils/MathUtil.ts"
 
 type Symbol = string
 
@@ -202,7 +202,7 @@ function sides(cells: Cell[]): bigint {
         const diagonalNeighbour = diagonal(cell.position, nextDiagonal)
         const diagonalInCellBlock = isInCellBlock(diagonalNeighbour, cells)
 
-        return rotatedIsNotInCellBlock || diagonalInCellBlock;
+        return rotatedIsNotInCellBlock || diagonalInCellBlock
       }
 
     }).length
