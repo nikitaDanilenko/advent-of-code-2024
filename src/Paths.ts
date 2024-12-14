@@ -66,4 +66,3 @@ export function dayPath(day: number): string {
 export function dayText(day: number): string {
   return `Day ${padToTwoDigits(day)}`
 }
-

@@ -1,15 +1,15 @@
 import DayWith from "../Utils/DayUtil.tsx"
-import {Solution} from "../Utils/Types.ts"
+import { Solution } from "../Utils/Types.ts"
 import lodash from "lodash"
-import {sum} from "../Utils/MathUtil.ts"
-import {foldrM} from "../Utils/CollectionUtil.ts"
+import { sum } from "../Utils/MathUtil.ts"
+import { foldrM } from "../Utils/CollectionUtil.ts"
 
 type PuzzleInput = {
   equations: Equation[]
 }
 
 type Equation = {
-  target: bigint,
+  target: bigint
   operands: bigint[]
 }
 
@@ -17,15 +17,23 @@ function invertAddition(operand: bigint, target: bigint): bigint | undefined {
   return target >= operand ? target - operand : undefined
 }
 
-function invertMultiplication(operand: bigint, target: bigint): bigint | undefined {
+function invertMultiplication(
+  operand: bigint,
+  target: bigint,
+): bigint | undefined {
   return target % operand === BigInt(0) ? target / operand : undefined
 }
 
-function invertConcatenation(operand: bigint, target: bigint): bigint | undefined {
+function invertConcatenation(
+  operand: bigint,
+  target: bigint,
+): bigint | undefined {
   const operandString = operand.toString()
   const targetString = target.toString()
   if (targetString.endsWith(operandString)) {
-    return BigInt(lodash.dropRight(targetString.split(""), operandString.length).join(""))
+    return BigInt(
+      lodash.dropRight(targetString.split(""), operandString.length).join(""),
+    )
   } else {
     return undefined
   }
@@ -34,12 +42,14 @@ function invertConcatenation(operand: bigint, target: bigint): bigint | undefine
 const arithmeticInverters = [invertAddition, invertMultiplication]
 const allInverters = [invertAddition, invertMultiplication, invertConcatenation]
 
-function validEquation(equation: Equation, inverters: ((x: bigint, target: bigint) => bigint | undefined)[]): boolean {
-
+function validEquation(
+  equation: Equation,
+  inverters: ((x: bigint, target: bigint) => bigint | undefined)[],
+): boolean {
   function outcomes(x: bigint, y: bigint): bigint[] {
     return inverters
-      .map(inverter => inverter(x, y))
-      .filter(x => x !== undefined)
+      .map((inverter) => inverter(x, y))
+      .filter((x) => x !== undefined)
   }
 
   // Attempt to iterate backward: Starting from the target, apply the inverse of all available operations to the target,
@@ -50,43 +60,51 @@ function validEquation(equation: Equation, inverters: ((x: bigint, target: bigin
   // i.e. one could also use 'tail(equation.operands)' and compare to 'equation.operands[0]'.
   const options = foldrM(outcomes, equation.target, equation.operands)
 
-  return options.some(x => x === BigInt(0))
+  return options.some((x) => x === BigInt(0))
 }
 
 function parseInput(text: string): PuzzleInput {
-  const equations = text.split("\n").filter(x => x.length > 0).map(line => {
-    const [target, rest] = line.split(": ")
-    const operands = rest.split(" ").map(x => BigInt(x))
-    return {
-      target: BigInt(target),
-      operands
-    }
-  })
-  return {equations: equations}
+  const equations = text
+    .split("\n")
+    .filter((x) => x.length > 0)
+    .map((line) => {
+      const [target, rest] = line.split(": ")
+      const operands = rest.split(" ").map((x) => BigInt(x))
+      return {
+        target: BigInt(target),
+        operands,
+      }
+    })
+  return { equations: equations }
 }
 
 function solve(input: PuzzleInput): Solution<bigint> {
-  const [validEquations, invalidEquations] = lodash.partition(input.equations, (eq) => {
-    return validEquation(eq, arithmeticInverters)
-  })
+  const [validEquations, invalidEquations] = lodash.partition(
+    input.equations,
+    (eq) => {
+      return validEquation(eq, arithmeticInverters)
+    },
+  )
 
-  const validEquationsTargetsSum = sum(validEquations.map((equation) => equation.target))
+  const validEquationsTargetsSum = sum(
+    validEquations.map((equation) => equation.target),
+  )
 
-  const validEquationsWithConcatenation = invalidEquations.filter(equation => validEquation(equation, allInverters))
-  const validEquationsWithConcatenationTargetsSum = sum(validEquationsWithConcatenation.map((equation) => equation.target))
+  const validEquationsWithConcatenation = invalidEquations.filter((equation) =>
+    validEquation(equation, allInverters),
+  )
+  const validEquationsWithConcatenationTargetsSum = sum(
+    validEquationsWithConcatenation.map((equation) => equation.target),
+  )
 
   return {
     part1: validEquationsTargetsSum,
-    part2: validEquationsTargetsSum + validEquationsWithConcatenationTargetsSum
+    part2: validEquationsTargetsSum + validEquationsWithConcatenationTargetsSum,
   }
 }
 
 function Day07() {
-  return DayWith<PuzzleInput>(
-    "07",
-    parseInput,
-    solve
-  )
+  return DayWith<PuzzleInput>("07", parseInput, solve)
 }
 
 export default Day07

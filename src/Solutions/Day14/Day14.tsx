@@ -1,4 +1,4 @@
-import {Position2d, Solution} from "../Utils/Types.ts"
+import { Position2d, Solution } from "../Utils/Types.ts"
 import DayWith from "../Utils/DayUtil.tsx"
 import lodash from "lodash"
 
@@ -14,22 +14,19 @@ type PuzzleInput = {
 }
 
 function parse(input: string): PuzzleInput {
-  const robots =
-    Array
-      .from(input.matchAll(robotRegExp))
-      .map((match) => {
-        return {
-          start: {x: parseInt(match[1]), y: parseInt(match[2])},
-          velocity: {x: parseInt(match[3]), y: parseInt(match[4])}
-        }
-      })
-  return {robots: robots}
+  const robots = Array.from(input.matchAll(robotRegExp)).map((match) => {
+    return {
+      start: { x: parseInt(match[1]), y: parseInt(match[2]) },
+      velocity: { x: parseInt(match[3]), y: parseInt(match[4]) },
+    }
+  })
+  return { robots: robots }
 }
 
 function move(robot: Robot, time: number): Position2d {
   return {
     x: mod(robot.start.x + robot.velocity.x * time, width),
-    y: mod(robot.start.y + robot.velocity.y * time, height)
+    y: mod(robot.start.y + robot.velocity.y * time, height),
   }
 }
 
@@ -40,14 +37,24 @@ function mod(x: number, modulus: number): number {
   return ((x % modulus) + modulus) % modulus
 }
 
-function byQuadrants(positions: Position2d[]): [Position2d[], Position2d[], Position2d[], Position2d[]] {
+function byQuadrants(
+  positions: Position2d[],
+): [Position2d[], Position2d[], Position2d[], Position2d[]] {
   const halfWidth = (width - 1) / 2
   const halfHeight = (height - 1) / 2
   return [
-    positions.filter((position) => position.x < halfWidth && position.y < halfHeight),
-    positions.filter((position) => position.x > halfWidth && position.y < halfHeight),
-    positions.filter((position) => position.x < halfWidth && position.y > halfHeight),
-    positions.filter((position) => position.x > halfWidth && position.y > halfHeight)
+    positions.filter(
+      (position) => position.x < halfWidth && position.y < halfHeight,
+    ),
+    positions.filter(
+      (position) => position.x > halfWidth && position.y < halfHeight,
+    ),
+    positions.filter(
+      (position) => position.x < halfWidth && position.y > halfHeight,
+    ),
+    positions.filter(
+      (position) => position.x > halfWidth && position.y > halfHeight,
+    ),
   ]
 }
 
@@ -55,7 +62,7 @@ function heuristic(robots: Robot[]): number {
   function moveRobot(robot: Robot, times: number): Robot {
     return {
       ...robot,
-      start: move(robot, times)
+      start: move(robot, times),
     }
   }
 
@@ -67,15 +74,14 @@ function heuristic(robots: Robot[]): number {
         } else {
           return [number, [], [...groups, group]]
         }
-
       },
-      [numbers[0], [], []]
+      [numbers[0], [], []],
     )
     return grouped[2]
   }
 
-  const moveRobots =
-    (robots: Robot[], times: number) => robots.map(robot => moveRobot(robot, times))
+  const moveRobots = (robots: Robot[], times: number) =>
+    robots.map((robot) => moveRobot(robot, times))
 
   const maxIterations = width * height
   const bestGuess = 30
@@ -97,20 +103,19 @@ function heuristic(robots: Robot[]): number {
        However, without the knowledge that there is a frame, this seems to be far-fetched.
     */
     const enoughAligned =
-      Object.entries(lodash.groupBy(moved, (robot) => robot.start.x))
-        .filter(([, rs]) => {
-            if (rs.length > bestGuess) {
-              const sorted =
-                rs
-                  .sort((a, b) => a.start.y - b.start.y)
-                  .map((robot) => robot.start.y)
-              const grouped = groupIncreasing(sorted)
-              return lodash.some(grouped, group => group.length > bestGuess)
-            } else {
-              return false
-            }
+      Object.entries(lodash.groupBy(moved, (robot) => robot.start.x)).filter(
+        ([, rs]) => {
+          if (rs.length > bestGuess) {
+            const sorted = rs
+              .sort((a, b) => a.start.y - b.start.y)
+              .map((robot) => robot.start.y)
+            const grouped = groupIncreasing(sorted)
+            return lodash.some(grouped, (group) => group.length > bestGuess)
+          } else {
+            return false
           }
-        ).length > 0
+        },
+      ).length > 0
     if (enoughAligned) {
       break
     }
@@ -123,20 +128,19 @@ function heuristic(robots: Robot[]): number {
 function solve(input: PuzzleInput): Solution<bigint> {
   const moved = input.robots.map((robot) => move(robot, 100))
   const quadrants = byQuadrants(moved)
-  const solution1 = quadrants.reduce((acc, robots) => acc * BigInt(robots.length), BigInt(1))
+  const solution1 = quadrants.reduce(
+    (acc, robots) => acc * BigInt(robots.length),
+    BigInt(1),
+  )
   const solution2 = heuristic(input.robots)
   return {
     part1: solution1,
-    part2: BigInt(solution2)
+    part2: BigInt(solution2),
   }
 }
 
 function Day14() {
-  return DayWith(
-    "14",
-    parse,
-    solve,
-  )
+  return DayWith("14", parse, solve)
 }
 
 export default Day14

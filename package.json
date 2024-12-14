@@ -48,6 +48,7 @@
   "homepage": "https://nikitadanilenko.github.io/advent-of-code-2024",
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
+    "prettier": "3.4.2",
     "vite": "^6.0.3"
   }
 }

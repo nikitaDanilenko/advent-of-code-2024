@@ -1,7 +1,7 @@
-import {neighbours, Position2d, Solution} from "../Utils/Types.ts"
+import { neighbours, Position2d, Solution } from "../Utils/Types.ts"
 import DayWith from "../Utils/DayUtil.tsx"
 import lodash from "lodash"
-import {sum} from "../Utils/MathUtil.ts"
+import { sum } from "../Utils/MathUtil.ts"
 
 type Symbol = string
 
@@ -10,66 +10,68 @@ type PuzzleInput = {
 }
 
 function parseInput(input: string): PuzzleInput {
-  const map =
-    input
-      .split("\n")
-      .filter(line => line.length > 0)
-      .flatMap(
-        (line, y) => {
-          return line
-            .split('')
-            .map((char, x) => {
-              return [JSON.stringify({x: x, y: y}), char] as [string, Symbol]
-            })
-        })
+  const map = input
+    .split("\n")
+    .filter((line) => line.length > 0)
+    .flatMap((line, y) => {
+      return line.split("").map((char, x) => {
+        return [JSON.stringify({ x: x, y: y }), char] as [string, Symbol]
+      })
+    })
 
-  return {map: new Map(map)}
+  return { map: new Map(map) }
 }
 
 type Cell = {
-  symbol: Symbol,
-  position: Position2d,
+  symbol: Symbol
+  position: Position2d
   neighbours: number
 }
 
-function neighboursOnMap(position: Position2d, map: Map<string, Symbol>): [Cell, Position2d[]] {
+function neighboursOnMap(
+  position: Position2d,
+  map: Map<string, Symbol>,
+): [Cell, Position2d[]] {
   const stringPosition = JSON.stringify(position)
   const symbol = map.get(stringPosition)!!
-  const next =
-    neighbours(position)
-      .filter(neighbour => {
-        const neighbourSymbol = map.get(JSON.stringify(neighbour))
-        return neighbour !== undefined && neighbourSymbol === symbol
-      })
+  const next = neighbours(position).filter((neighbour) => {
+    const neighbourSymbol = map.get(JSON.stringify(neighbour))
+    return neighbour !== undefined && neighbourSymbol === symbol
+  })
 
-  return [{
-    symbol: symbol,
-    position: position,
-    neighbours: next.length
-  }, next]
+  return [
+    {
+      symbol: symbol,
+      position: position,
+      neighbours: next.length,
+    },
+    next,
+  ]
 }
 
 function allNeighbourhoods(map: Map<string, Symbol>): Cell[][] {
   const unvisited = new Set(map.keys())
   const neighbourhoods: Cell[][] = []
 
-  function neighbourhoodOnMap(position: Position2d, map: Map<string, Symbol>): Cell[] {
+  function neighbourhoodOnMap(
+    position: Position2d,
+    map: Map<string, Symbol>,
+  ): Cell[] {
     function iterate(positions: Position2d[], currentCells: Cell[]): Cell[] {
       if (positions.length === 0) {
         return currentCells
       } else {
-        const next = positions.map(position => neighboursOnMap(position, map))
-        const cells = next.map(([cell,]) => cell)
-        const nextPositions =
-          lodash
-            .uniq(
-              next
-                .flatMap(([, ps]) => ps.map(p => JSON.stringify(p)))
-                .filter(pos => unvisited.has(pos))
-            )
-            .map(p => JSON.parse(p) as Position2d)
+        const next = positions.map((position) => neighboursOnMap(position, map))
+        const cells = next.map(([cell]) => cell)
+        const nextPositions = lodash
+          .uniq(
+            next
+              .flatMap(([, ps]) => ps.map((p) => JSON.stringify(p)))
+              .filter((pos) => unvisited.has(pos)),
+          )
+          .map((p) => JSON.parse(p) as Position2d)
         const nextCells = currentCells.concat(cells)
-        positions.map(p => unvisited.delete(JSON.stringify(p)))
+        positions.map((p) => unvisited.delete(JSON.stringify(p)))
         return iterate(nextPositions, nextCells)
       }
     }
@@ -92,27 +94,32 @@ function area(cells: Cell[]): bigint {
 }
 
 function perimeter(cells: Cell[]): bigint {
-  return BigInt(lodash.sum(cells.map(cell => 4 - cell.neighbours)))
+  return BigInt(lodash.sum(cells.map((cell) => 4 - cell.neighbours)))
 }
 
 function solution1(cellsBlocks: Cell[][]): bigint {
-  return sum(cellsBlocks.map(cells => {
-    const a = area(cells)
-    const p = perimeter(cells)
-    return a * p
-  }))
+  return sum(
+    cellsBlocks.map((cells) => {
+      const a = area(cells)
+      const p = perimeter(cells)
+      return a * p
+    }),
+  )
 }
 
 function solve(input: PuzzleInput): Solution<bigint> {
   const neighbourhoods = allNeighbourhoods(input.map)
   return {
     part1: solution1(neighbourhoods),
-    part2: solution2(neighbourhoods)
+    part2: solution2(neighbourhoods),
   }
 }
 
 enum Direction {
-  Up, Right, Down, Left
+  Up,
+  Right,
+  Down,
+  Left,
 }
 
 function nextDirection(direction: Direction): Direction {
@@ -122,18 +129,21 @@ function nextDirection(direction: Direction): Direction {
 function inDirection(position: Position2d, direction: Direction): Position2d {
   switch (direction) {
     case Direction.Up:
-      return {x: position.x, y: position.y - 1}
+      return { x: position.x, y: position.y - 1 }
     case Direction.Right:
-      return {x: position.x + 1, y: position.y}
+      return { x: position.x + 1, y: position.y }
     case Direction.Down:
-      return {x: position.x, y: position.y + 1}
+      return { x: position.x, y: position.y + 1 }
     case Direction.Left:
-      return {x: position.x - 1, y: position.y}
+      return { x: position.x - 1, y: position.y }
   }
 }
 
 enum Diagonal {
-  UpRight, DownRight, DownLeft, UpLeft
+  UpRight,
+  DownRight,
+  DownLeft,
+  UpLeft,
 }
 
 function clockwise(direction: Direction): Diagonal {
@@ -149,28 +159,33 @@ function clockwise(direction: Direction): Diagonal {
   }
 }
 
-const directions = [Direction.Up, Direction.Right, Direction.Down, Direction.Left]
+const directions = [
+  Direction.Up,
+  Direction.Right,
+  Direction.Down,
+  Direction.Left,
+]
 
 function diagonal(position: Position2d, diagonal: Diagonal): Position2d {
-  switch(diagonal) {
+  switch (diagonal) {
     case Diagonal.UpRight:
-      return {x: position.x + 1, y: position.y - 1}
+      return { x: position.x + 1, y: position.y - 1 }
     case Diagonal.DownRight:
-      return {x: position.x + 1, y: position.y + 1}
+      return { x: position.x + 1, y: position.y + 1 }
     case Diagonal.DownLeft:
-      return {x: position.x - 1, y: position.y + 1}
+      return { x: position.x - 1, y: position.y + 1 }
     case Diagonal.UpLeft:
-      return {x: position.x - 1, y: position.y - 1}
+      return { x: position.x - 1, y: position.y - 1 }
   }
 }
 
 function isInCellBlock(position: Position2d, cells: Cell[]): boolean {
-  return lodash.some(cells, cell => lodash.isEqual(cell.position, position))
+  return lodash.some(cells, (cell) => lodash.isEqual(cell.position, position))
 }
 
 function sides(cells: Cell[]): bigint {
-  const allSides = cells.map(cell => {
-    const sides = directions.filter(direction => {
+  const allSides = cells.map((cell) => {
+    const sides = directions.filter((direction) => {
       const neighbour = inDirection(cell.position, direction)
       const inCellBlock = isInCellBlock(neighbour, cells)
       /* If the neighbour in that direction is in the area,
@@ -179,8 +194,7 @@ function sides(cells: Cell[]): bigint {
        */
       if (inCellBlock) {
         return false
-      }
-      else {
+      } else {
         const nextDir = nextDirection(direction)
         const nextNeighbour = inDirection(cell.position, nextDir)
         /* We now cover the following cases, where the direction is still Right:
@@ -204,7 +218,6 @@ function sides(cells: Cell[]): bigint {
 
         return rotatedIsNotInCellBlock || diagonalInCellBlock
       }
-
     }).length
     return sides
   })
@@ -215,16 +228,11 @@ function sides(cells: Cell[]): bigint {
 }
 
 function solution2(cellsBlocks: Cell[][]): bigint {
-  return sum(cellsBlocks.map(cell => sides(cell) * area(cell)))
+  return sum(cellsBlocks.map((cell) => sides(cell) * area(cell)))
 }
 
 function Day12() {
-  return DayWith(
-    "12",
-    parseInput,
-    solve
-  )
+  return DayWith("12", parseInput, solve)
 }
-
 
 export default Day12

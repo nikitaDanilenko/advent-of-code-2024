@@ -1,7 +1,7 @@
-import {Solution} from "../Utils/Types.ts"
+import { Solution } from "../Utils/Types.ts"
 import DayWith from "../Utils/DayUtil.tsx"
 import lodash from "lodash"
-import {applyN, sum} from "../Utils/MathUtil.ts"
+import { applyN, sum } from "../Utils/MathUtil.ts"
 
 type Stone = bigint
 
@@ -9,9 +9,9 @@ type PuzzleInput = Stone[]
 
 function parse(input: string): PuzzleInput {
   return input
-    .split('\n')
-    .filter(line => line.length > 0)[0]
-    .split(' ')
+    .split("\n")
+    .filter((line) => line.length > 0)[0]
+    .split(" ")
     .map((word) => BigInt(word))
 }
 
@@ -24,7 +24,10 @@ function next(stone: Stone): Stone[] {
     const length = stoneString.length
     if (length % 2 === 0) {
       const half = length / 2
-      return [BigInt(stoneString.slice(0, half)), BigInt(stoneString.slice(half))]
+      return [
+        BigInt(stoneString.slice(0, half)),
+        BigInt(stoneString.slice(half)),
+      ]
     } else {
       return [stone * BigInt(2024)]
     }
@@ -34,7 +37,6 @@ function next(stone: Stone): Stone[] {
 type Amounts = [string, number][]
 
 function computeViaAmount(iterations: number, stones: Stone[]): Amounts {
-
   function blink(amounts: Amounts): Amounts {
     const nextMap = new Map(amounts)
     /* 1. Mutable implementation, because maps are most easily modified in this fashion.
@@ -49,11 +51,10 @@ function computeViaAmount(iterations: number, stones: Stone[]): Amounts {
           and increase the amounts of all result stones (at least 1, at most 2) by the original amount.
      */
     amounts.forEach(([stone, amount]) => {
-      const nextStones = next(BigInt(stone)).map(stone => stone.toString())
+      const nextStones = next(BigInt(stone)).map((stone) => stone.toString())
       const currentAmount = nextMap.get(stone) ?? 0
-      if (amount > 0)
-        nextMap.set(stone, currentAmount - amount)
-      nextStones.forEach(nextStone => {
+      if (amount > 0) nextMap.set(stone, currentAmount - amount)
+      nextStones.forEach((nextStone) => {
         const currentAmount = nextMap.get(nextStone) ?? 0
         nextMap.set(nextStone, currentAmount + amount)
       })
@@ -61,8 +62,9 @@ function computeViaAmount(iterations: number, stones: Stone[]): Amounts {
     return Array.from(nextMap.entries())
   }
 
-  const amountMap =
-    stones.map(stone => [stone.toString(), 1] as [string, number])
+  const amountMap = stones.map(
+    (stone) => [stone.toString(), 1] as [string, number],
+  )
 
   // The "+1" is necessary, because applyN is 0-based, i.e. the first element is the unmodified input.
   return lodash.last(applyN(iterations + 1, blink, amountMap))!!
@@ -78,16 +80,12 @@ function solve(input: PuzzleInput): Solution<bigint> {
 
   return {
     part1: stones,
-    part2: stones2
+    part2: stones2,
   }
 }
 
 function Day11() {
-  return DayWith(
-    "11",
-    parse,
-    solve
-  )
+  return DayWith("11", parse, solve)
 }
 
 export default Day11
