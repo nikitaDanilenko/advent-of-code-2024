@@ -1,15 +1,15 @@
-import {Solution} from "../Utils/Types.ts"
-import DayWith from "../Utils/DayUtil.tsx"
-import {sum} from "../Utils/MathUtil.ts"
+import { Solution } from '../Utils/Types.ts'
+import DayWith from '../Utils/DayUtil.tsx'
+import { sum } from '../Utils/MathUtil.ts'
 
 type Vector2d = {
-  x: bigint,
+  x: bigint
   y: bigint
 }
 
 type Equation = {
-  a: Vector2d,
-  b: Vector2d,
+  a: Vector2d
+  b: Vector2d
   target: Vector2d
 }
 
@@ -49,9 +49,9 @@ function parseEquation(lines: string[]): Equation {
 
 function parse(input: string): PuzzleInput {
   const equations = input
-    .split("\n\n")
-    .filter((block) => block !== "")
-    .map(block => parseEquation(block.split("\n")))
+    .split('\n\n')
+    .filter(block => block !== '')
+    .map(block => parseEquation(block.split('\n')))
 
   return {
     equations: equations
@@ -70,7 +70,8 @@ function parse(input: string): PuzzleInput {
  */
 function solveEquation(equation: Equation): [bigint, bigint] | undefined {
   const denominatorR = equation.a.x * equation.b.y - equation.b.x * equation.a.y
-  const numeratorR = equation.b.y * equation.target.x - equation.b.x * equation.target.y
+  const numeratorR =
+    equation.b.y * equation.target.x - equation.b.x * equation.target.y
 
   if (numeratorR % denominatorR === 0n) {
     const r = numeratorR / denominatorR
@@ -85,21 +86,24 @@ function solveEquation(equation: Equation): [bigint, bigint] | undefined {
 
 // The "cheapest" and the "at most 100 times" are red herrings for the first part.
 function solve1(equations: Equation[]): bigint {
-  const solutions =
-    equations
-      .map(solveEquation)
-      .filter((solution) => solution !== undefined)
-      .map(([r, s]) => {return 3n * r + s})
+  const solutions = equations
+    .map(solveEquation)
+    .filter(solution => solution !== undefined)
+    .map(([r, s]) => {
+      return 3n * r + s
+    })
 
   return sum(solutions)
 }
 
 // The "cheapest" and the "at most 100 times" are still entirely irrelevant for the second part.
 function solve2(equations: Equation[]): bigint {
-  const correctedEquations = equations
-    .map(equation => {
-      return {...equation, target: addConstant(BigInt(10000000000000), equation.target)}
-    })
+  const correctedEquations = equations.map(equation => {
+    return {
+      ...equation,
+      target: addConstant(BigInt(10000000000000), equation.target)
+    }
+  })
   return solve1(correctedEquations)
 }
 
@@ -111,11 +115,7 @@ function solve(input: PuzzleInput): Solution<bigint> {
 }
 
 function Day13() {
-  return DayWith(
-    "13",
-    parse,
-    solve
-  )
+  return DayWith('13', parse, solve)
 }
 
 export default Day13

@@ -1,10 +1,10 @@
-import DayWith from "../Utils/DayUtil.tsx"
-import {Solution} from "../Utils/Types.ts"
-import lodash from "lodash"
-import {sum} from "../Utils/MathUtil.ts"
+import DayWith from '../Utils/DayUtil.tsx'
+import { Solution } from '../Utils/Types.ts'
+import lodash from 'lodash'
+import { sum } from '../Utils/MathUtil.ts'
 
 type PuzzleInput = {
-  disk: string[],
+  disk: string[]
   original: string
 }
 
@@ -12,14 +12,14 @@ function parse(input: string): PuzzleInput {
   const disk = input
     .split('\n')[0]
     .split('')
-    .flatMap(((x, index) => {
+    .flatMap((x, index) => {
       const number = parseInt(x)
       if (index % 2 === 0) {
         return lodash.fill(Array(number), (index / 2).toString())
       } else {
         return lodash.fill(Array(number), '.')
       }
-    }))
+    })
 
   return {
     disk: disk,
@@ -31,7 +31,11 @@ const empty: string = '.'
 
 // The loop solution may be an artifact from a previous attempt.
 // I tried a recursive solution first, but it ran into stack issues, while the loop solution worked fine.
-function combineViaLoop(leftToRight: string[], rightToLeftNonEmpty: string[], targetCells: number): string[] {
+function combineViaLoop(
+  leftToRight: string[],
+  rightToLeftNonEmpty: string[],
+  targetCells: number
+): string[] {
   const combined = []
   let reachedCells = 0
   while (reachedCells <= targetCells) {
@@ -90,18 +94,22 @@ function combineViaLoop(leftToRight: string[], rightToLeftNonEmpty: string[], ta
 }
 
 type Block = {
-  index: number | undefined, // undefined means empty
-  length: number,
+  index: number | undefined // undefined means empty
+  length: number
   start: number
 }
 
 function toBlocks(array: string[]): Block[] {
-  const [blocks,] = array
+  const [blocks] = array
     .map((x, index) => {
-      return {length: parseInt(x), index: index % 2 === 0 ? index / 2 : undefined}
+      return {
+        length: parseInt(x),
+        index: index % 2 === 0 ? index / 2 : undefined
+      }
     })
-    .reduce(([blocks, currentIndex], {length, index}) => {
-        const block = {length: length, index: index, start: currentIndex}
+    .reduce(
+      ([blocks, currentIndex], { length, index }) => {
+        const block = { length: length, index: index, start: currentIndex }
         return [[...blocks, block], currentIndex + length] as [Block[], number]
       },
       [[], 0] as [Block[], number]
@@ -130,13 +138,12 @@ function solvePart2(input: string): bigint {
         }
       ]
     } else {
-      return [{...emptyBlock, index: fileBlock.index}]
+      return [{ ...emptyBlock, index: fileBlock.index }]
     }
   }
 
   // Same story as with the other iteration: Recursion is too deep
   function iterateBlocksViaLoop(disk: Block[]): Block[] {
-
     /**
      * I had thought about the same approach for the first part, but it felt too complicated because the file would have needed splitting.
      *
@@ -148,21 +155,36 @@ function solvePart2(input: string): bigint {
      *
      * Quadratic complexity, but still ok-ish.
      */
-    let remainingFiles = Array(...disk.filter(x => x.index !== undefined)).reverse()
+    let remainingFiles = Array(
+      ...disk.filter(x => x.index !== undefined)
+    ).reverse()
     let currentNumberOfFiles = 0
     while (currentNumberOfFiles < numberOfFiles) {
       const [nextFile, ...nextRemainingFiles] = remainingFiles
       remainingFiles = nextRemainingFiles
       currentNumberOfFiles++
       // The block needs to be earlier than the file, because otherwise we may move files from the front to the back
-      const fittingEmptyBlock = lodash.find(disk, x => x.index === undefined && x.length >= nextFile.length && x.start <= nextFile.start)
+      const fittingEmptyBlock = lodash.find(
+        disk,
+        x =>
+          x.index === undefined &&
+          x.length >= nextFile.length &&
+          x.start <= nextFile.start
+      )
       if (fittingEmptyBlock !== undefined) {
         const newArea = place(nextFile, fittingEmptyBlock)
-        const indexOfEmptyBlock = lodash.findIndex(disk, x => x.start === fittingEmptyBlock.start)
+        const indexOfEmptyBlock = lodash.findIndex(
+          disk,
+          x => x.start === fittingEmptyBlock.start
+        )
         const diskWithoutFile = disk.map(x => {
-          return x.index === nextFile.index ? {...x, index: undefined} : x
+          return x.index === nextFile.index ? { ...x, index: undefined } : x
         })
-        disk = [...diskWithoutFile.slice(0, indexOfEmptyBlock), ...newArea, ...diskWithoutFile.slice(indexOfEmptyBlock + 1)]
+        disk = [
+          ...diskWithoutFile.slice(0, indexOfEmptyBlock),
+          ...newArea,
+          ...diskWithoutFile.slice(indexOfEmptyBlock + 1)
+        ]
       }
     }
     return disk
@@ -183,12 +205,17 @@ function solvePart2(input: string): bigint {
   return part2
 }
 
-
 function solve(input: PuzzleInput): Solution<bigint> {
   const diskArray = input.disk
   const targetCells = diskArray.filter(x => x !== empty).length
-  const final = combineViaLoop(diskArray, Array(...diskArray).filter(x => x !== empty).reverse(), targetCells)
-  const part1 = sum(final.map(((x, index) => BigInt(parseInt(x) * index))))
+  const final = combineViaLoop(
+    diskArray,
+    Array(...diskArray)
+      .filter(x => x !== empty)
+      .reverse(),
+    targetCells
+  )
+  const part1 = sum(final.map((x, index) => BigInt(parseInt(x) * index)))
 
   return {
     part1: part1,
@@ -197,11 +224,7 @@ function solve(input: PuzzleInput): Solution<bigint> {
 }
 
 function Day09() {
-  return DayWith(
-    "09",
-    parse,
-    solve
-  )
+  return DayWith('09', parse, solve)
 }
 
 export default Day09

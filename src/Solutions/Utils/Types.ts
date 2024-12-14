@@ -1,24 +1,24 @@
 export type Pair<A, B> = {
-  first: A,
+  first: A
   second: B
 }
 
 export type Position2d = {
-  x: number,
+  x: number
   y: number
 }
 
 export function neighbours(position: Position2d): Position2d[] {
   return [
-    {x: position.x - 1, y: position.y},
-    {x: position.x + 1, y: position.y},
-    {x: position.x, y: position.y - 1},
-    {x: position.x, y: position.y + 1}
+    { x: position.x - 1, y: position.y },
+    { x: position.x + 1, y: position.y },
+    { x: position.x, y: position.y - 1 },
+    { x: position.x, y: position.y + 1 }
   ]
 }
 
 export type Solution<T> = {
-  part1: T,
+  part1: T
   part2: T
 }
 

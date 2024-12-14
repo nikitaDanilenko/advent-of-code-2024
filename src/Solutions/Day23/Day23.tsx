@@ -1,5 +1,5 @@
-import {Solution} from "../Utils/Types.ts"
-import DayWith from "../Utils/DayUtil.tsx"
+import { Solution } from '../Utils/Types.ts'
+import DayWith from '../Utils/DayUtil.tsx'
 
 type PuzzleInput = string
 
@@ -16,11 +16,7 @@ function solve(input: PuzzleInput): Solution<bigint> {
 }
 
 function Day23() {
-  return DayWith(
-    "23",
-    parse,
-    solve,
-  )
+  return DayWith('23', parse, solve)
 }
 
 export default Day23
