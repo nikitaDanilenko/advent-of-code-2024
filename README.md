@@ -73,6 +73,7 @@ There are some caveats:
    Initial struggles aside, the deployment is also extremely simple, and the corresponding workflow is very
    straightforward.
 4. TypeScript/JavaScript rants:
+
    1. Reference equality for object keys in maps?! Really?
       This makes maps essentially unusable for object keys.
       In Elm maps are `Dict`s, and they do only allow basic types as keys.
