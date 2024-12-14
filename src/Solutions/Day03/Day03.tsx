@@ -1,7 +1,7 @@
-import DayWith from "../Utils/DayUtil.tsx"
-import { sum } from "../Utils/MathUtil.ts"
-import { takeUntilRemainderStartsWith } from "../Utils/CollectionUtil.ts"
-import solutionFrom from "../Utils/Types.ts"
+import DayWith from '../Utils/DayUtil.tsx'
+import { sum } from '../Utils/MathUtil.ts'
+import { takeUntilRemainderStartsWith } from '../Utils/CollectionUtil.ts'
+import solutionFrom from '../Utils/Types.ts'
 
 const multiplicationRegExp = /mul\((\d+),(\d+)\)/g
 
@@ -16,35 +16,35 @@ function Day03() {
   }
 
   function parseInput(input: string): PuzzleInput {
-    const oneLine = input.replace("\n", "")
+    const oneLine = input.replace('\n', '')
 
     function iterateChunks(
       fragment1: string,
       fragment2: string,
       remainder: string,
-      relevantBlocks: string[],
+      relevantBlocks: string[]
     ): [string, string[]] {
-      if (remainder === "") {
-        return ["", relevantBlocks]
+      if (remainder === '') {
+        return ['', relevantBlocks]
       } else {
         const [nextChunk, nextRemainder] = takeUntilRemainderStartsWith(
           fragment1,
-          remainder,
+          remainder
         )
         return iterateChunks(fragment2, fragment1, nextRemainder, [
           ...relevantBlocks,
-          nextChunk,
+          nextChunk
         ])
       }
     }
 
-    const [_, relevantBlocks] = iterateChunks("don't()", "do()", oneLine, [])
+    const [_, relevantBlocks] = iterateChunks("don't()", 'do()', oneLine, [])
 
-    const multiplications = relevantBlocks.map((block) => {
-      return Array.from(block.matchAll(multiplicationRegExp)).map((match) => {
+    const multiplications = relevantBlocks.map(block => {
+      return Array.from(block.matchAll(multiplicationRegExp)).map(match => {
         return {
           first: BigInt(match[1]),
-          second: BigInt(match[2]),
+          second: BigInt(match[2])
         }
       })
     })
@@ -55,8 +55,8 @@ function Day03() {
   function sumOfMultiplications(multiplications: Multiplication[]): bigint {
     return sum(
       multiplications.map(
-        (multiplication) => multiplication.first * multiplication.second,
-      ),
+        multiplication => multiplication.first * multiplication.second
+      )
     )
   }
 
@@ -68,11 +68,11 @@ function Day03() {
   function solvePart2(puzzleInput: PuzzleInput): bigint {
     // For the second part only the even occurrences are relevant, because every odd occurrence starts with 'don't()'.
     return sumOfMultiplications(
-      puzzleInput.multiplications.filter((_, index) => index % 2 === 0).flat(),
+      puzzleInput.multiplications.filter((_, index) => index % 2 === 0).flat()
     )
   }
 
-  return DayWith("03", parseInput, solutionFrom(solvePart1, solvePart2))
+  return DayWith('03', parseInput, solutionFrom(solvePart1, solvePart2))
 }
 
 export default Day03

@@ -1,7 +1,7 @@
-import DayWith from "../Utils/DayUtil.tsx"
-import { Position2d } from "../Utils/Types.ts"
-import lodash from "lodash"
-import { applyN } from "../Utils/MathUtil.ts"
+import DayWith from '../Utils/DayUtil.tsx'
+import { Position2d } from '../Utils/Types.ts'
+import lodash from 'lodash'
+import { applyN } from '../Utils/MathUtil.ts'
 
 type StringPosition2d = string
 
@@ -12,19 +12,19 @@ type PuzzleInput = {
 }
 
 function parse(input: string): PuzzleInput {
-  const lines = input.split("\n").filter((line) => line !== "")
+  const lines = input.split('\n').filter(line => line !== '')
   const height = lines.length
   const width = lines[0].length
 
   const entries = input
-    .split("\n")
-    .filter((line) => line !== "")
+    .split('\n')
+    .filter(line => line !== '')
     .flatMap((line, y) => {
-      return line.split("").map((char, x) => {
+      return line.split('').map((char, x) => {
         const position = { x: x, y: y }
         const pair: [StringPosition2d, string] = [
           JSON.stringify(position),
-          char,
+          char
         ]
         return pair
       })
@@ -33,7 +33,7 @@ function parse(input: string): PuzzleInput {
   return {
     map: new Map(entries),
     height: height,
-    width: width,
+    width: width
   }
 }
 
@@ -49,7 +49,7 @@ function minus(x: Position2d, y: Position2d): Position2d {
 function validPosition(
   position: Position2d,
   width: number,
-  height: number,
+  height: number
 ): boolean {
   return (
     position.x >= 0 &&
@@ -63,11 +63,11 @@ function antiNodes(
   positions: string[],
   repetitions: number,
   width: number,
-  height: number,
+  height: number
 ): string[] {
   const nodes = positions
-    .flatMap((position1) => {
-      return positions.map((position2) => {
+    .flatMap(position1 => {
+      return positions.map(position2 => {
         return [position1, position2]
       })
     })
@@ -79,17 +79,17 @@ function antiNodes(
 
       const repeated = applyN<Position2d>(
         repetitions,
-        (pos) => {
+        pos => {
           return plus(pos, difference)
         },
-        pos2,
+        pos2
       )
       return repeated
     })
-    .filter((position) => {
+    .filter(position => {
       return validPosition(position, width, height)
     })
-    .map((position) => {
+    .map(position => {
       return JSON.stringify(position)
     })
 
@@ -98,22 +98,22 @@ function antiNodes(
 
 function solve(input: PuzzleInput) {
   const byCharacter: [string, string[]][] = Object.entries(
-    lodash.groupBy(Array.from(input.map.entries()), ([, char]) => char),
+    lodash.groupBy(Array.from(input.map.entries()), ([, char]) => char)
   )
     .map(([char, entries]) => {
-      const pair: [string, string[]] = [char, entries.map((entry) => entry[0])]
+      const pair: [string, string[]] = [char, entries.map(entry => entry[0])]
       return pair
     })
-    .filter(([char]) => char !== ".")
+    .filter(([char]) => char !== '.')
   const byCharacterMap = new Map(byCharacter)
 
-  const byKey1 = Array.from(byCharacterMap.keys()).map((key) => {
+  const byKey1 = Array.from(byCharacterMap.keys()).map(key => {
     return antiNodes(byCharacterMap.get(key)!!, 1, input.width, input.height)
   })
 
   const all1 = lodash.union(...byKey1)
 
-  const byKey2 = Array.from(byCharacterMap.keys()).map((key) => {
+  const byKey2 = Array.from(byCharacterMap.keys()).map(key => {
     // This is a HUGE overestimation, because even in the worst case scenario we only add at most input.width
     // anti-nodes, and not 2*input.width.
     // BUT: The implementation is very simple, correct, and the runtime is still significantly below 1 second,
@@ -122,7 +122,7 @@ function solve(input: PuzzleInput) {
       byCharacterMap.get(key)!!,
       input.width,
       input.width,
-      input.height,
+      input.height
     )
   })
 
@@ -130,12 +130,12 @@ function solve(input: PuzzleInput) {
 
   return {
     part1: BigInt(all1.length),
-    part2: BigInt(all2.length),
+    part2: BigInt(all2.length)
   }
 }
 
 function Day08() {
-  return DayWith("08", parse, solve)
+  return DayWith('08', parse, solve)
 }
 
 export default Day08

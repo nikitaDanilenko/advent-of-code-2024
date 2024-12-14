@@ -1,9 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300");
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300');
 
 body,
 button,
 input {
-  font-family: "Source Code Pro", monospace;
+  font-family: 'Source Code Pro', monospace;
 }
 
 body,

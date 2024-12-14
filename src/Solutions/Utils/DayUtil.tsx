@@ -1,25 +1,25 @@
-import React from "react"
-import { rootPath } from "../../Paths.ts"
-import { Link } from "react-router-dom"
-import { Solution } from "./Types.ts"
+import React from 'react'
+import { rootPath } from '../../Paths.ts'
+import { Link } from 'react-router-dom'
+import { Solution } from './Types.ts'
 
 function DayWith<PuzzleInput>(
   number: string,
   parseInput: (text: string) => PuzzleInput,
-  solve: (puzzleInput: PuzzleInput) => Solution<bigint | string>,
+  solve: (puzzleInput: PuzzleInput) => Solution<bigint | string>
 ) {
-  const [input, setInput] = React.useState<string>("")
+  const [input, setInput] = React.useState<string>('')
   const [part1, setPart1] = React.useState<bigint | string | undefined>(
-    undefined,
+    undefined
   )
   const [part2, setPart2] = React.useState<bigint | string | undefined>(
-    undefined,
+    undefined
   )
   const [duration, setDuration] = React.useState<number>(0)
-  const [error, setError] = React.useState<string>("")
+  const [error, setError] = React.useState<string>('')
 
   function handleTextAreaChange(
-    event: React.ChangeEvent<HTMLTextAreaElement>,
+    event: React.ChangeEvent<HTMLTextAreaElement>
   ): void {
     setInput(event.target.value)
     resetResponses()
@@ -45,14 +45,14 @@ function DayWith<PuzzleInput>(
   }
 
   function resetResponses(): void {
-    setError("")
+    setError('')
     setDuration(0)
     setPart1(undefined)
     setPart2(undefined)
   }
 
   function resetInput(): void {
-    setInput("")
+    setInput('')
     resetResponses()
   }
 
@@ -91,7 +91,7 @@ function DayWith<PuzzleInput>(
           <button>Calculate</button>
         </form>
       </section>
-      {error !== "" ? errorBlock : responseBlock}
+      {error !== '' ? errorBlock : responseBlock}
       {duration > 0 && <p>{`Duration: ${duration}ms`}</p>}
     </main>
   )

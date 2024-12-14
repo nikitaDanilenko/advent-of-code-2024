@@ -1,5 +1,5 @@
-import DayWith from "../Utils/DayUtil.tsx"
-import { Position2d, Solution } from "../Utils/Types.ts"
+import DayWith from '../Utils/DayUtil.tsx'
+import { Position2d, Solution } from '../Utils/Types.ts'
 
 function Day06() {
   type StringPosition = string
@@ -13,11 +13,11 @@ function Day06() {
   }
 
   function parseInput(text: string): PuzzleInput {
-    const lines = text.split("\n").filter((line) => line !== "")
+    const lines = text.split('\n').filter(line => line !== '')
     const width = lines[0].length
     const height = lines.length
     const indexed: [Position2d, string][] = lines.flatMap((line, y) => {
-      return line.split("").map((char, x) => {
+      return line.split('').map((char, x) => {
         const result: [Position2d, string] = [{ x: x, y: y }, char]
         return result
       })
@@ -25,17 +25,17 @@ function Day06() {
 
     const obstacles = new Set(
       indexed
-        .filter(([, char]) => char === "#")
-        .map(([pos]) => JSON.stringify(pos)),
+        .filter(([, char]) => char === '#')
+        .map(([pos]) => JSON.stringify(pos))
     )
 
-    const startingPosition = indexed.find(([, char]) => char === "^")!![0]
+    const startingPosition = indexed.find(([, char]) => char === '^')!![0]
 
     return {
       obstacles: obstacles,
       width: width,
       height: height,
-      start: startingPosition,
+      start: startingPosition
     }
   }
 
@@ -43,7 +43,7 @@ function Day06() {
     Up,
     Down,
     Left,
-    Right,
+    Right
   }
 
   function moveInDirection(pos: Position2d, direction: Direction): Position2d {
@@ -62,7 +62,7 @@ function Day06() {
   function validPosition(
     position: Position2d,
     width: number,
-    height: number,
+    height: number
   ): boolean {
     return (
       position.x >= 0 &&
@@ -90,7 +90,7 @@ function Day06() {
     direction: Direction,
     width: number,
     height: number,
-    obstacles: Set<StringPosition>,
+    obstacles: Set<StringPosition>
   ): [Position2d, Direction] | undefined {
     const newPos = moveInDirection(pos, direction)
     const newPosString = JSON.stringify(newPos)
@@ -115,7 +115,7 @@ function Day06() {
         direction,
         input.width,
         input.height,
-        input.obstacles,
+        input.obstacles
       )
     }
 
@@ -125,7 +125,7 @@ function Day06() {
   function isOnLoop(input: PuzzleInput): boolean {
     function iterate(
       positionWithDirection: [Position2d, Direction] | undefined,
-      visited: Set<string>,
+      visited: Set<string>
     ): boolean {
       if (!positionWithDirection) {
         return false
@@ -134,7 +134,7 @@ function Day06() {
         const currentPositionWithDirection = JSON.stringify({
           x: position.x,
           y: position.y,
-          direction: direction,
+          direction: direction
         })
 
         function checkNext() {
@@ -144,7 +144,7 @@ function Day06() {
             direction,
             input.width,
             input.height,
-            input.obstacles,
+            input.obstacles
           )
           return iterate(next, newVisited)
         }
@@ -162,13 +162,13 @@ function Day06() {
 
     // We only need to check those elements that are not the starting position,
     // but have been visited otherwise, because other positions cannot be reached.
-    const onLoop = Array.from(visitedInitial).filter((position) => {
+    const onLoop = Array.from(visitedInitial).filter(position => {
       function checkLoop() {
         // Rant: Good grief: 'add' modifies the set in place, but still returns itself.
         //       Hence, we need a copy of the input to avoid modifying it several times.
         const modifiedInput = {
           ...input,
-          obstacles: new Set(input.obstacles).add(position),
+          obstacles: new Set(input.obstacles).add(position)
         }
         return isOnLoop(modifiedInput)
       }
@@ -177,11 +177,11 @@ function Day06() {
 
     return {
       part1: moveCount,
-      part2: BigInt(onLoop),
+      part2: BigInt(onLoop)
     }
   }
 
-  return DayWith("06", parseInput, solve)
+  return DayWith('06', parseInput, solve)
 }
 
 export default Day06
