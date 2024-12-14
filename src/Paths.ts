@@ -41,7 +41,7 @@ export const days: (() => React.JSX.Element)[] = [
   Day11,
   Day12,
   Day13,
-  Day14,
+  Day14
   // Day15,
   // Day16,
   // Day17,

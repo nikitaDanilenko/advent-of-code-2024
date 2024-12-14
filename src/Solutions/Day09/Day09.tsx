@@ -23,7 +23,7 @@ function parse(input: string): PuzzleInput {
 
   return {
     disk: disk,
-    original: input,
+    original: input
   }
 }
 
@@ -34,7 +34,7 @@ const empty: string = "."
 function combineViaLoop(
   leftToRight: string[],
   rightToLeftNonEmpty: string[],
-  targetCells: number,
+  targetCells: number
 ): string[] {
   const combined = []
   let reachedCells = 0
@@ -76,13 +76,13 @@ function combineViaLoop(
        assuming uniform distribution, using blocks we only have about 1/5th of all the iterations,
        because blocks are about 5 cells long, and we handle all cells of a block at once.
      */
-    const nonEmptyLeft = lodash.takeWhile(leftToRight, (x) => x !== empty)
+    const nonEmptyLeft = lodash.takeWhile(leftToRight, x => x !== empty)
     if (nonEmptyLeft.length > 0) {
       leftToRight = lodash.drop(leftToRight, nonEmptyLeft.length)
       combined.push(...nonEmptyLeft)
       reachedCells += nonEmptyLeft.length
     } else {
-      const emptyLeft = lodash.takeWhile(leftToRight, (x) => x === empty).length
+      const emptyLeft = lodash.takeWhile(leftToRight, x => x === empty).length
       const nonEmptyRight = lodash.take(rightToLeftNonEmpty, emptyLeft)
       leftToRight = lodash.drop(leftToRight, emptyLeft)
       rightToLeftNonEmpty = lodash.drop(rightToLeftNonEmpty, emptyLeft)
@@ -104,7 +104,7 @@ function toBlocks(array: string[]): Block[] {
     .map((x, index) => {
       return {
         length: parseInt(x),
-        index: index % 2 === 0 ? index / 2 : undefined,
+        index: index % 2 === 0 ? index / 2 : undefined
       }
     })
     .reduce(
@@ -112,7 +112,7 @@ function toBlocks(array: string[]): Block[] {
         const block = { length: length, index: index, start: currentIndex }
         return [[...blocks, block], currentIndex + length] as [Block[], number]
       },
-      [[], 0] as [Block[], number],
+      [[], 0] as [Block[], number]
     )
   return blocks
 }
@@ -120,7 +120,7 @@ function toBlocks(array: string[]): Block[] {
 function solvePart2(input: string): bigint {
   const disk = input.split("")
   const blocks = toBlocks(disk)
-  const numberOfFiles = blocks.filter((x) => x.index !== undefined).length
+  const numberOfFiles = blocks.filter(x => x.index !== undefined).length
 
   // Call only if the file block already fits into the empty block.
   function place(fileBlock: Block, emptyBlock: Block): Block[] {
@@ -129,13 +129,13 @@ function solvePart2(input: string): bigint {
         {
           index: fileBlock.index,
           length: fileBlock.length,
-          start: emptyBlock.start,
+          start: emptyBlock.start
         },
         {
           index: undefined,
           length: emptyBlock.length - fileBlock.length,
-          start: emptyBlock.start + fileBlock.length,
-        },
+          start: emptyBlock.start + fileBlock.length
+        }
       ]
     } else {
       return [{ ...emptyBlock, index: fileBlock.index }]
@@ -156,7 +156,7 @@ function solvePart2(input: string): bigint {
      * Quadratic complexity, but still ok-ish.
      */
     let remainingFiles = Array(
-      ...disk.filter((x) => x.index !== undefined),
+      ...disk.filter(x => x.index !== undefined)
     ).reverse()
     let currentNumberOfFiles = 0
     while (currentNumberOfFiles < numberOfFiles) {
@@ -166,24 +166,24 @@ function solvePart2(input: string): bigint {
       // The block needs to be earlier than the file, because otherwise we may move files from the front to the back
       const fittingEmptyBlock = lodash.find(
         disk,
-        (x) =>
+        x =>
           x.index === undefined &&
           x.length >= nextFile.length &&
-          x.start <= nextFile.start,
+          x.start <= nextFile.start
       )
       if (fittingEmptyBlock !== undefined) {
         const newArea = place(nextFile, fittingEmptyBlock)
         const indexOfEmptyBlock = lodash.findIndex(
           disk,
-          (x) => x.start === fittingEmptyBlock.start,
+          x => x.start === fittingEmptyBlock.start
         )
-        const diskWithoutFile = disk.map((x) => {
+        const diskWithoutFile = disk.map(x => {
           return x.index === nextFile.index ? { ...x, index: undefined } : x
         })
         disk = [
           ...diskWithoutFile.slice(0, indexOfEmptyBlock),
           ...newArea,
-          ...diskWithoutFile.slice(indexOfEmptyBlock + 1),
+          ...diskWithoutFile.slice(indexOfEmptyBlock + 1)
         ]
       }
     }
@@ -193,13 +193,13 @@ function solvePart2(input: string): bigint {
   const finalDisk = iterateBlocksViaLoop(blocks)
   const part2 = sum(
     finalDisk
-      .filter((x) => x.index !== undefined)
-      .map((x) => {
+      .filter(x => x.index !== undefined)
+      .map(x => {
         const range = lodash.range(0, x.length)
         const index = BigInt(x.index!!)
-        const subSum = sum(range.map((y) => BigInt(x.start + y) * index))
+        const subSum = sum(range.map(y => BigInt(x.start + y) * index))
         return subSum
-      }),
+      })
   )
 
   return part2
@@ -207,19 +207,19 @@ function solvePart2(input: string): bigint {
 
 function solve(input: PuzzleInput): Solution<bigint> {
   const diskArray = input.disk
-  const targetCells = diskArray.filter((x) => x !== empty).length
+  const targetCells = diskArray.filter(x => x !== empty).length
   const final = combineViaLoop(
     diskArray,
     Array(...diskArray)
-      .filter((x) => x !== empty)
+      .filter(x => x !== empty)
       .reverse(),
-    targetCells,
+    targetCells
   )
   const part1 = sum(final.map((x, index) => BigInt(parseInt(x) * index)))
 
   return {
     part1: part1,
-    part2: solvePart2(input.original),
+    part2: solvePart2(input.original)
   }
 }
 

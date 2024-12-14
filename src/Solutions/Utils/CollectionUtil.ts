@@ -1,6 +1,6 @@
 export function takeUntilRemainderStartsWith(
   fragment: string,
-  text: string,
+  text: string
 ): [string, string] {
   const occurrence = text.indexOf(fragment)
   return occurrence >= 0
@@ -21,6 +21,6 @@ export function foldrM<A, R>(f: (a: A, r: R) => R[], acc: R, list: A[]): R[] {
 
   return list.reduce(
     (acc, a) => combine(acc, a),
-    (z: R) => [z],
+    (z: R) => [z]
   )(acc)
 }
