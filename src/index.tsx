@@ -17,5 +17,5 @@ root.render(
         {...routes}
       </Route>
     </Routes>
-  </HashRouter>
+  </HashRouter>,
 )

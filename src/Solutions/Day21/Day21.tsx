@@ -11,7 +11,7 @@ function solve(input: PuzzleInput): Solution<bigint> {
   console.log(input)
   return {
     part1: BigInt(0),
-    part2: BigInt(0)
+    part2: BigInt(0),
   }
 }
 

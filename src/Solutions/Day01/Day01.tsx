@@ -35,9 +35,9 @@ function Day01() {
       lodash
         .zipWith(puzzleInput.firstList, puzzleInput.secondList, (x, y) => ({
           first: x,
-          second: y
+          second: y,
         }))
-        .map((pair) => absBigInt(pair.first - pair.second))
+        .map((pair) => absBigInt(pair.first - pair.second)),
     )
 
     return result
@@ -46,15 +46,15 @@ function Day01() {
   function solvePart2(puzzleInput: PuzzleInput): bigint {
     const o: Map<string, number> = new Map(
       Object.entries(
-        lodash.groupBy(puzzleInput.secondList, (value) => value)
-      ).map(([key, value]) => [key, value.length])
+        lodash.groupBy(puzzleInput.secondList, (value) => value),
+      ).map(([key, value]) => [key, value.length]),
     )
 
     const result = sum(
       puzzleInput.firstList.map((value) => {
         const inSecond = o.get(value.toString()) || 0
         return value * BigInt(inSecond)
-      })
+      }),
     )
 
     return result
@@ -63,7 +63,7 @@ function Day01() {
   return DayWith<PuzzleInput>(
     "01",
     parseInput,
-    solutionFrom(solvePart1, solvePart2)
+    solutionFrom(solvePart1, solvePart2),
   )
 }
 
