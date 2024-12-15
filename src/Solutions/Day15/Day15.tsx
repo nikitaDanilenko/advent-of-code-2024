@@ -55,32 +55,6 @@ function parse(input: string): PuzzleInput {
   return { map: map, robot: robot, height: lines.length, width: lines[0].length, directions: directions }
 }
 
-function printMap(map: ElementMap, robot: Position2d, width: number, height: number) {
-  const lines: string[] = []
-  lodash.range(height).forEach(y => {
-    const line: string[] = []
-    lodash.range(width).forEach(x => {
-      const position = { x: x, y: y }
-      const element = map.get(JSON.stringify(position))
-
-      if (element === Element.Wall) {
-        line.push('#')
-      } else if (element === Element.Box) {
-        line.push('O')
-      } else if (element === Element.Empty) {
-        line.push('.')
-      } else {
-        line.push('?')
-      }
-    })
-    if (y === robot.y) {
-      line[robot.x] = '@'
-    }
-    lines.push(line.join(''))
-  })
-  console.log(lines.join('\n'))
-}
-
 function moveSequence(input: PuzzleInput): [ElementMap, Position2d] {
   const map = new Map(input.map)
 
