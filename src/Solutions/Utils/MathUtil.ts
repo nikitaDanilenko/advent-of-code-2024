@@ -17,3 +17,13 @@ export function applyN<A>(n: number, f: (a: A) => A, a: A): A[] {
 
   return applyWith(a, n, [])
 }
+
+export function applyWhile<A>(predicate: (a: A) => boolean, f: (a: A) => A, a: A): A[] {
+  function applyWith(applied: A, values: A[]): A[] {
+    return predicate(applied)
+      ? applyWith(f(applied), [...values, applied])
+      : values
+  }
+
+  return applyWith(a, [])
+}

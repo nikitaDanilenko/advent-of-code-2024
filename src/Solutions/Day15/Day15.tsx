@@ -1,22 +1,47 @@
 import { Direction4, parseDirection4, Position2d, positionInDirection4, Solution } from '../Utils/Types.ts'
 import DayWith from '../Utils/DayUtil.tsx'
 import { StringPosition } from '../Utils/InputUtil.ts'
-import { applyN } from '../Utils/MathUtil.ts'
+import { applyN, applyWhile } from '../Utils/MathUtil.ts'
 import lodash from 'lodash'
 
 type PuzzleInput = {
   map: ElementMap
+  wideMap: WideElementMap
   width: number
   height: number
   robot: Position2d
+  robotOnWidened: Position2d
   directions: Direction4[]
 }
+
 
 enum Element {
   Empty,
   Wall,
   Box
 }
+
+enum WideElement {
+  Empty,
+  Wall,
+  BoxLeft,
+  BoxRight
+}
+
+function parseWideElement(char: string): WideElement {
+  switch (char) {
+    case '#':
+      return WideElement.Wall
+    case '[':
+      return WideElement.BoxLeft
+    case ']':
+      return WideElement.BoxRight
+    default:
+      return WideElement.Empty
+  }
+}
+
+type WideElementMap = Map<StringPosition, WideElement>
 
 function parseElement(char: string): Element {
   switch (char) {
@@ -52,7 +77,40 @@ function parse(input: string): PuzzleInput {
     .flatMap(l => l.split(''))
     .map(c => parseDirection4('^', '>', 'v', '<', c))
 
-  return { map: map, robot: robot, height: lines.length, width: lines[0].length, directions: directions }
+  const widenedLines = lines.map(l => l.split('').map(c => {
+      switch (c) {
+        case 'O':
+          return '[]'
+        case '@':
+          return '@.'
+        default:
+          return [c, c].join('')
+      }
+    }
+  ).join(''))
+
+  const widenedPositions = widenedLines.flatMap((line, y) => {
+    return line.split('').map((char, x) => {
+      return [{ x: x, y: y }, char] as [Position2d, string]
+    })
+  })
+
+  const robotOnWidened = widenedPositions.find(([_, char]) => char === '@')!![0]
+  const wideMap = new Map(
+    widenedPositions.map(([position, char]) => {
+      return [JSON.stringify(position), parseWideElement(char)]
+    })
+  )
+
+  return {
+    map: map,
+    wideMap: wideMap,
+    robot: robot,
+    robotOnWidened: robotOnWidened,
+    height: lines.length,
+    width: lines[0].length,
+    directions: directions
+  }
 }
 
 function moveSequence(input: PuzzleInput): [ElementMap, Position2d] {
@@ -101,6 +159,144 @@ function moveSequence(input: PuzzleInput): [ElementMap, Position2d] {
   return [map, result]
 }
 
+function isHorizontal(direction: Direction4): boolean {
+  return direction === Direction4.Left || direction === Direction4.Right
+}
+
+function isBoxElement(element: WideElement): boolean {
+  return element === WideElement.BoxLeft || element === WideElement.BoxRight
+}
+
+function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
+  const map = new Map(input.wideMap)
+
+  function boxNeighboursInDirection(position: Position2d, direction: Direction4): Position2d[] {
+    if (isHorizontal(direction)) {
+      // In the horizontal case, take all following neighbours in the same direction with box elements.
+      const following = applyWhile(
+        (pos) => {
+          const e = map.get(JSON.stringify(pos))
+          // Todo: Very ugly, seems unidiomatic.
+          return !!e ? isBoxElement(e) : false
+        },
+        (pos) => positionInDirection4(pos, direction),
+        position
+      )
+      return following
+    } else {
+      function iterateVertically(currentPositions: Position2d[], foundPositions: Position2d[]): Position2d[] {
+        if (currentPositions.length === 0) {
+          return foundPositions
+        } else {
+          const boxPositions = currentPositions.flatMap(pos => {
+            const nextInDirection = positionInDirection4(pos, direction)
+            const nextElement = map.get(JSON.stringify(nextInDirection))
+            if (nextElement === undefined || !isBoxElement(nextElement)) {
+              return []
+            } else {
+              const complementDirection = nextElement === WideElement.BoxLeft ? Direction4.Right : Direction4.Left
+              const touchedBox = [nextInDirection, positionInDirection4(nextInDirection, complementDirection)]
+              console.log(`touchedBox: ${JSON.stringify(touchedBox)}`)
+              const filtered = touchedBox.filter(p => {
+                const atP = map.get(JSON.stringify(p))
+                return atP !== undefined && isBoxElement(atP)
+              })
+              return filtered
+            }
+          })
+          return iterateVertically(boxPositions, foundPositions.concat(boxPositions))
+        }
+      }
+
+      const elementAtPosition = map.get(JSON.stringify(position))
+      const complementDirection = elementAtPosition === WideElement.BoxLeft ? Direction4.Right : Direction4.Left
+
+      const initial = [position, positionInDirection4(position, complementDirection)]
+      return iterateVertically(initial, initial)
+    }
+  }
+
+  function move(position: Position2d, direction: Direction4): Position2d {
+    const targetPosition = positionInDirection4(position, direction)
+    const targetElement = map.get(JSON.stringify(targetPosition))!!
+    console.log(`position: ${JSON.stringify(position)}, direction: ${direction}, targetPosition: ${JSON.stringify(targetPosition)}, targetElement: ${targetElement}`)
+
+    if (targetElement === WideElement.Wall) {
+      return position
+    } else if (targetElement === WideElement.Empty) {
+      return targetPosition
+    } else {
+      const boxPositions = boxNeighboursInDirection(targetPosition, direction)
+      console.log(`boxPositions: ${JSON.stringify(boxPositions)}`)
+      const allMovable = lodash.every(
+        boxPositions,
+        pos => {
+          const nextPos = positionInDirection4(pos, direction)
+          const nextElement = map.get(JSON.stringify(nextPos))
+          // Careful: Cannot check '!!nextElement' here, because WideElement.Empty is falsy.
+          // How can people seriously work with this language?
+          const result = nextElement !== undefined && (nextElement === WideElement.Empty || isBoxElement(nextElement))
+          return result
+        }
+      )
+      if (allMovable) {
+        const stringPositions = boxPositions.map(p => JSON.stringify(p))
+        const currentElements = boxPositions.map(p => [p, map.get(JSON.stringify(p))!!] as [Position2d, WideElement])
+        // Delete old values
+        stringPositions.forEach(pos => {
+          map.set(pos, WideElement.Empty)
+        })
+        // Set new values
+        currentElements.forEach(([pos, el]) => {
+          const nextPos = positionInDirection4(pos, direction)
+          map.set(JSON.stringify(nextPos), el)
+        })
+
+        return targetPosition
+      } else {
+        return position
+      }
+    }
+  }
+
+  const result = input.directions.reduce<Position2d>(
+    (acc, direction) => {
+      printMap(map, acc, input.width, input.height)
+      return move(acc, direction)
+    }, input.robotOnWidened
+  )
+
+  return [map, result]
+}
+
+function printMap(map: WideElementMap, robot: Position2d, width: number, height: number) {
+  const lines: string[] = []
+  lodash.range(height).forEach(y => {
+    const line: string[] = []
+    lodash.range(2 * width).forEach(x => {
+      const position = { x: x, y: y }
+      const element = map.get(JSON.stringify(position))
+
+      if (element === WideElement.Wall) {
+        line.push('#')
+      } else if (element === WideElement.BoxLeft) {
+        line.push('[')
+      } else if (element === WideElement.BoxRight) {
+        line.push(']')
+      } else if (element === WideElement.Empty) {
+        line.push('.')
+      } else {
+        line.push('?')
+      }
+    })
+    if (y === robot.y) {
+      line[robot.x] = '@'
+    }
+    lines.push(line.join(''))
+  })
+  console.log(lines.join('\n'))
+}
+
 function solve(input: PuzzleInput): Solution<bigint> {
 
   const [map] = moveSequence(input)
@@ -111,6 +307,8 @@ function solve(input: PuzzleInput): Solution<bigint> {
   const solution1 = lodash.sum(boxPositions
     .map(([p, _]) => p.x + p.y * 100))
 
+  const [wideMap] = moveSequenceWidened(input)
+  // printMap(wideMap, input.robotOnWidened, input.width, input.height)
 
   return {
     part1: BigInt(solution1),
