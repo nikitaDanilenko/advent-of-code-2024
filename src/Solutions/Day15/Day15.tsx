@@ -177,13 +177,29 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
         (pos) => {
           const e = map.get(JSON.stringify(pos))
           // Todo: Very ugly, seems unidiomatic.
-          return !!e ? isBoxElement(e) : false
+          return e !== undefined ? isBoxElement(e) : false
         },
         (pos) => positionInDirection4(pos, direction),
         position
       )
       return following
     } else {
+      function fullBox(position: Position2d): Position2d[] {
+        const elementAtPosition = map.get(JSON.stringify(position))
+        const complementDirection = elementAtPosition === WideElement.BoxLeft ? Direction4.Right : Direction4.Left
+
+        return [position, positionInDirection4(position, complementDirection)]
+      }
+
+      /* In the vertical case, we need to correctly find all boxes that may be part of a stack in the direction we move.
+         For every layer of boxes, we move one step in the original direction from each position of the layer,
+         and check if that position is part of a box. If it is, we add it, and its counterpart to the next layer.
+
+         Calling iterate(initial, initial) seems wrong for two reasons:
+         1. the complement should be computed in the iterateVertically function itself for the start, too.
+         2. it is strange to compute the first layer by hand.
+
+       */
       function iterateVertically(currentPositions: Position2d[], foundPositions: Position2d[]): Position2d[] {
         if (currentPositions.length === 0) {
           return foundPositions
@@ -194,8 +210,7 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
             if (nextElement === undefined || !isBoxElement(nextElement)) {
               return []
             } else {
-              const complementDirection = nextElement === WideElement.BoxLeft ? Direction4.Right : Direction4.Left
-              const touchedBox = [nextInDirection, positionInDirection4(nextInDirection, complementDirection)]
+              const touchedBox = fullBox(nextInDirection)
               const filtered = touchedBox.filter(p => {
                 const atP = map.get(JSON.stringify(p))
                 return atP !== undefined && isBoxElement(atP)
@@ -207,10 +222,7 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
         }
       }
 
-      const elementAtPosition = map.get(JSON.stringify(position))
-      const complementDirection = elementAtPosition === WideElement.BoxLeft ? Direction4.Right : Direction4.Left
-
-      const initial = [position, positionInDirection4(position, complementDirection)]
+      const initial = fullBox(position)
       return iterateVertically(initial, initial)
     }
   }
@@ -224,6 +236,14 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
     } else if (targetElement === WideElement.Empty) {
       return targetPosition
     } else {
+      /* Once we computed all box positions in the stack (independent of the direction),
+         we check whether all of them can be moved in the direction.
+         For that, each neighbour in the next direction is checked for being empty or a box.
+         One could optimize the procedure to only check the boundaries of the stack for the neighbours being empty,
+         but finding the boundaries is non-trivial.
+
+         If all boxes are indeed movable,
+       */
       const boxPositions = boxNeighboursInDirection(targetPosition, direction)
 
       const allMovable = lodash.every(
@@ -238,11 +258,11 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
         }
       )
       if (allMovable) {
-        const stringPositions = boxPositions.map(p => JSON.stringify(p))
-        const currentElements = boxPositions.map(p => [p, map.get(JSON.stringify(p))!!] as [Position2d, WideElement])
+        const withStringPositions = boxPositions.map(pos => [pos, JSON.stringify(pos)] as [Position2d, StringPosition])
+        const currentElements = withStringPositions.map(([pos, strPos]) => [pos, map.get(strPos)!!] as [Position2d, WideElement])
         // Delete old values
-        stringPositions.forEach(pos => {
-          map.set(pos, WideElement.Empty)
+        withStringPositions.forEach(([, strPos]) => {
+          map.set(strPos, WideElement.Empty)
         })
         // Set new values
         currentElements.forEach(([pos, el]) => {
@@ -287,7 +307,6 @@ function solve(input: PuzzleInput): Solution<bigint> {
   const solution2 = lodash.sum(leftBoxParts
     .map(([p, _]) => p.x + p.y * 100)
   )
-  // printMap(wideMap, input.robotOnWidened, input.width, input.height)
 
   return {
     part1: BigInt(solution1),
