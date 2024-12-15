@@ -128,9 +128,8 @@ function moveSequence(input: PuzzleInput): [ElementMap, Position2d] {
 }
 
 function solve(input: PuzzleInput): Solution<bigint> {
-  console.log(input)
 
-  const [map, result] = moveSequence(input)
+  const [map] = moveSequence(input)
   const boxPositions = Array
     .from(map.entries())
     .map(([p, e]) => [JSON.parse(p) as Position2d, e] as [Position2d, Element])
