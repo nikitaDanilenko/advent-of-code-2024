@@ -196,7 +196,6 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
             } else {
               const complementDirection = nextElement === WideElement.BoxLeft ? Direction4.Right : Direction4.Left
               const touchedBox = [nextInDirection, positionInDirection4(nextInDirection, complementDirection)]
-              console.log(`touchedBox: ${JSON.stringify(touchedBox)}`)
               const filtered = touchedBox.filter(p => {
                 const atP = map.get(JSON.stringify(p))
                 return atP !== undefined && isBoxElement(atP)
@@ -219,7 +218,6 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
   function move(position: Position2d, direction: Direction4): Position2d {
     const targetPosition = positionInDirection4(position, direction)
     const targetElement = map.get(JSON.stringify(targetPosition))!!
-    console.log(`position: ${JSON.stringify(position)}, direction: ${direction}, targetPosition: ${JSON.stringify(targetPosition)}, targetElement: ${targetElement}`)
 
     if (targetElement === WideElement.Wall) {
       return position
@@ -227,7 +225,7 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
       return targetPosition
     } else {
       const boxPositions = boxNeighboursInDirection(targetPosition, direction)
-      console.log(`boxPositions: ${JSON.stringify(boxPositions)}`)
+
       const allMovable = lodash.every(
         boxPositions,
         pos => {
@@ -261,7 +259,6 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
 
   const result = input.directions.reduce<Position2d>(
     (acc, direction) => {
-      printMap(map, acc, input.width, input.height)
       return move(acc, direction)
     }, input.robotOnWidened
   )
@@ -269,50 +266,32 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
   return [map, result]
 }
 
-function printMap(map: WideElementMap, robot: Position2d, width: number, height: number) {
-  const lines: string[] = []
-  lodash.range(height).forEach(y => {
-    const line: string[] = []
-    lodash.range(2 * width).forEach(x => {
-      const position = { x: x, y: y }
-      const element = map.get(JSON.stringify(position))
-
-      if (element === WideElement.Wall) {
-        line.push('#')
-      } else if (element === WideElement.BoxLeft) {
-        line.push('[')
-      } else if (element === WideElement.BoxRight) {
-        line.push(']')
-      } else if (element === WideElement.Empty) {
-        line.push('.')
-      } else {
-        line.push('?')
-      }
-    })
-    if (y === robot.y) {
-      line[robot.x] = '@'
-    }
-    lines.push(line.join(''))
-  })
-  console.log(lines.join('\n'))
-}
-
 function solve(input: PuzzleInput): Solution<bigint> {
 
   const [map] = moveSequence(input)
   const boxPositions = Array
     .from(map.entries())
-    .map(([p, e]) => [JSON.parse(p) as Position2d, e] as [Position2d, Element])
+    .map(([p, e]) => [JSON.parse(p), e] as [Position2d, Element])
     .filter(([_, e]) => e === Element.Box)
   const solution1 = lodash.sum(boxPositions
-    .map(([p, _]) => p.x + p.y * 100))
+    .map(([p, _]) => p.x + p.y * 100)
+  )
 
   const [wideMap] = moveSequenceWidened(input)
+
+  const leftBoxParts = Array
+    .from(wideMap.entries())
+    .map(([p, e]) => [JSON.parse(p), e] as [Position2d, WideElement])
+    .filter(([_, e]) => e === WideElement.BoxLeft)
+
+  const solution2 = lodash.sum(leftBoxParts
+    .map(([p, _]) => p.x + p.y * 100)
+  )
   // printMap(wideMap, input.robotOnWidened, input.width, input.height)
 
   return {
     part1: BigInt(solution1),
-    part2: BigInt(0)
+    part2: BigInt(solution2)
   }
 }
 
