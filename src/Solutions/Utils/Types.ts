@@ -17,6 +17,41 @@ export function neighbours(position: Position2d): Position2d[] {
   ]
 }
 
+export enum Direction4 {
+  Up,
+  Right,
+  Down,
+  Left
+}
+
+export function parseDirection4(up: string, right: string, down: string, left: string, text: string): Direction4 {
+  switch (text) {
+    case up:
+      return Direction4.Up
+    case right:
+      return Direction4.Right
+    case down:
+      return Direction4.Down
+    case left:
+      return Direction4.Left
+    default:
+      throw new Error(`Invalid direction: ${text}`)
+  }
+}
+
+export function positionInDirection4(position: Position2d, direction: Direction4): Position2d {
+  switch (direction) {
+    case Direction4.Up:
+      return { x: position.x, y: position.y - 1 }
+    case Direction4.Right:
+      return { x: position.x + 1, y: position.y }
+    case Direction4.Down:
+      return { x: position.x, y: position.y + 1 }
+    case Direction4.Left:
+      return { x: position.x - 1, y: position.y }
+  }
+}
+
 export type Solution<T> = {
   part1: T
   part2: T
