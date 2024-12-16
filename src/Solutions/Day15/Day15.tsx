@@ -269,7 +269,10 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
           const nextPos = positionInDirection4(pos, direction)
           map.set(JSON.stringify(nextPos), el)
         })
-
+        /* It may be possible to combine the iterations, but it is simpler to just do everything sequentially.
+           It is important to first set everything to empty, and then set the new values,
+           because intermixing carelessly may result in a box being set to empty after it has been moved.
+         */
         return targetPosition
       } else {
         return position
@@ -286,6 +289,15 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
   return [map, result]
 }
 
+/*
+ * There is a lot of duplication, and possible optimization here.
+ * For example, the overestimation in part 1 can be removed, by using the same approach as in part 2 (with applyWhile).
+ *
+ * It may also be possible to combine everything into one, by adding an argument for the "box touched vertically" function.
+ * Similarly, the computation of the box position could be unified.
+ *
+ * While I do dislike the current duplication quite a lot, I am not sure whether the unification would be worth it.
+ */
 function solve(input: PuzzleInput): Solution<bigint> {
 
   const [map] = moveSequence(input)
