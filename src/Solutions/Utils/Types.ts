@@ -24,6 +24,19 @@ export enum Direction4 {
   Left
 }
 
+export function oppositeDirection4(direction: Direction4): Direction4 {
+  switch (direction) {
+    case Direction4.Up:
+      return Direction4.Down
+    case Direction4.Right:
+      return Direction4.Left
+    case Direction4.Down:
+      return Direction4.Up
+    case Direction4.Left:
+      return Direction4.Right
+  }
+}
+
 export function parseDirection4(up: string, right: string, down: string, left: string, text: string): Direction4 {
   switch (text) {
     case up:
