@@ -50,7 +50,7 @@ function run(program: Program): System {
           case 3:
             return jnz(BigInt(literalOperand), system)
           case 4:
-            return bxc(comboOperand, system)
+            return bxc(system)
           case 5:
             return out(comboOperand, system)
           case 6:
@@ -113,7 +113,7 @@ function jnz(value: bigint, system: System): System {
     }
 }
 
-function bxc(value: bigint, system: System): System {
+function bxc(system: System): System {
   return {
     output: system.output,
     instructionPointer: system.instructionPointer + 2,
