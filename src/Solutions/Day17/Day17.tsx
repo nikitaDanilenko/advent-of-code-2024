@@ -1,6 +1,7 @@
-import {Solution} from '../Utils/Types.ts'
+import { Solution } from '../Utils/Types.ts'
 import DayWith from '../Utils/DayUtil.tsx'
-import lodash from "lodash";
+import lodash from 'lodash'
+import { min } from '../Utils/MathUtil.ts'
 
 type PuzzleInput = Program
 
@@ -28,8 +29,7 @@ function parse(input: string): PuzzleInput {
 const operandModulus: number = 4
 const valueModulus: bigint = 8n
 
-function run(program: Program): System {
-
+function run(program: Program, ignoreJump: boolean): System {
   const instructions = program.program
 
   function iterate(system: System): System {
@@ -47,8 +47,15 @@ function run(program: Program): System {
             return bxl(BigInt(literalOperand), system)
           case 2:
             return bst(comboOperand, system)
+          // Hard-coded assumption: We loop only once from the end.
+          // The assumption is true for my input,
+          // and seems to be true for the inputs discussed on Reddit.
           case 3:
-            return jnz(BigInt(literalOperand), system)
+            if (!ignoreJump)
+              return jnz(BigInt(literalOperand), system)
+            else
+              // The system stays the same, but we need to move the pointer to reach the end of the program.
+              return { ...system, instructionPointer: system.instructionPointer + 2 }
           case 4:
             return bxc(system)
           case 5:
@@ -64,7 +71,7 @@ function run(program: Program): System {
     }
   }
 
-  return iterate({registers: program.registers, instructionPointer: 0, output: []})
+  return iterate({ registers: program.registers, instructionPointer: 0, output: [] })
 }
 
 type System = {
@@ -146,10 +153,59 @@ function cdv(value: bigint, system: System): System {
 }
 
 function solve(input: PuzzleInput): Solution<string> {
-  const system = run(input)
+  const system = run(input, false)
+
+  // Assumption: Only one output is produced.
+  function runOnce(valueForRegisterA: bigint): bigint {
+    const system = run({ registers: [valueForRegisterA, 0n, 0n], program: input.program }, true)
+    return system.output[0]
+  }
+
+  // Heavily inspired by discussions on Reddit.
+
+  // Intended to be used for a traversal from the back.
+  function findOne(valueForRegisterA: bigint, index: number, options: bigint[]): bigint[] {
+    if (runOnce(valueForRegisterA) !== BigInt(input.program[index])) {
+      // Not a match, return the current options.
+      return options
+    } else if (index === 0) {
+      // The output value matches the value in the program at the index (0),
+      // so we have found a match.
+      return [valueForRegisterA, ...options]
+    } else {
+      // For each index from the back to the front,
+      // the order of valueForRegisterA grows.
+      // Normally, the base is 10, which also works,
+      // but since all use the base 8, using base 8 is slightly faster.
+      // The important part is that regardless of the next index,
+      // any value for the next index will still produce the same output.
+      return lodash
+        .range(0, 8)
+        .reduce((acc, nextPositionMod8) =>
+            findOne(
+              valueForRegisterA * valueModulus + BigInt(nextPositionMod8),
+              index - 1,
+              acc
+            )
+          ,
+          options)
+    }
+  }
+
+  const start = input.program.length - 1
+  const all =
+    lodash
+      .range(0, 8)
+      .reduce(
+        (options, firstPositionMod8) => findOne(BigInt(firstPositionMod8), start, options),
+        [] as bigint[]
+      )
+
+  const part2 = min(all)!!
+
   return {
     part1: system.output.map(o => o.toString()).join(','),
-    part2: ''
+    part2: part2.toString()
   }
 }
 
