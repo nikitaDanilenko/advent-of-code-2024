@@ -43,12 +43,12 @@ function parse(input: string): PuzzleInput {
 
 type Tropical = number | undefined
 
-function strictlyLess(a: Tropical, b: Tropical): boolean {
+function lessOrEqual(a: Tropical, b: Tropical): boolean {
   if (a === undefined)
     return false
   else if (b === undefined) {
     return true
-  } else return a < b
+  } else return a <= b
 }
 
 const allDirections4 = [Direction4.Up, Direction4.Right, Direction4.Down, Direction4.Left]
@@ -68,9 +68,9 @@ type DirPos = {
 
 type StringDirPos = string
 
-function dijkstra(start: Position2d, maze: Maze): [Map<StringPosition, Tropical>, Map<StringPosition, StringPosition>] {
+function dijkstra(start: Position2d, maze: Maze): [Map<StringPosition, Tropical>, Map<StringPosition, StringPosition[]>] {
   const distances = new Map<StringDirPos, Tropical>()
-  const previous = new Map<StringDirPos, StringPosition>()
+  const previous = new Map<StringDirPos, StringPosition[]>()
 
   const queue = new Set<StringPosition>()
 
@@ -86,19 +86,26 @@ function dijkstra(start: Position2d, maze: Maze): [Map<StringPosition, Tropical>
   distances.set(JSON.stringify({ enterDirection: Direction4.Right, position: start }), 0)
 
   while (queue.size > 0) {
-    if (queue.size % 100 === 0) {
+    if (queue.size % 1000 === 0) {
       console.log(queue.size)
     }
 
+    // This conversion is extremely inefficient.
     const ds = Array.from(queue.values()).map(key => [key, distances.get(key)] as [StringDirPos, Tropical])
     const [leastKey, leastDistance] = ds
+      .filter(([_, distance]) => distance !== undefined)
       .reduce((acc, candidate) => {
           const [, currentMinDistance] = acc
           const [, distance] = candidate
-          return strictlyLess(distance, currentMinDistance) ? candidate : acc
-        }
+          return lessOrEqual(distance, currentMinDistance) ? candidate : acc
+        },
+        ['', undefined] as [StringDirPos, Tropical]
       )
-    // console.log(leastKey, leastDistance)
+    // This reduces the number of vertices to traverse: Once there is no vertex with a known distance, we do not need to continue,
+    // because the one condition, where values are getting set will never be reached.
+    if (leastDistance === undefined) {
+      break
+    }
     queue.delete(leastKey)
 
     const leastDirPos = JSON.parse(leastKey) as DirPos
@@ -117,10 +124,9 @@ function dijkstra(start: Position2d, maze: Maze): [Map<StringPosition, Tropical>
       const alternative = leastDistance !== undefined ? leastDistance + weightToNeighbour : undefined
       const neighbourDistance = distances.get(strDirPos)
 
-      // console.log(`dirPos: ${JSON.stringify(dirPos)}, alternative: ${alternative}, neighbourDistance: ${neighbourDistance}`)
-      if (strictlyLess(alternative, neighbourDistance)) {
+      if (lessOrEqual(alternative, neighbourDistance)) {
         distances.set(strDirPos, alternative)
-        previous.set(strDirPos, leastKey)
+        previous.set(strDirPos, (previous.get(strDirPos) ?? []).concat(leastKey))
       }
     })
   }
@@ -128,49 +134,39 @@ function dijkstra(start: Position2d, maze: Maze): [Map<StringPosition, Tropical>
   return [distances, previous]
 }
 
-function directionToSymbol(direction: Direction4): string {
-  switch (direction) {
-    case Direction4.Up:
-      return '↑'
-    case Direction4.Right:
-      return '→'
-    case Direction4.Down:
-      return '↓'
-    case Direction4.Left:
-      return '←'
-  }
-}
-
 function solve(input: PuzzleInput): Solution<bigint> {
   const [weights, previous] = dijkstra(input.start, input.maze)
+
+  // There is so much wrong here.
+  // Why do we need conversions? Why is there no better function for set operations that fetch both components?
   const lightest =
     Array.from(weights.entries()).filter(([key, _]) => lodash.isEqual((JSON.parse(key) as DirPos).position, input.end))
       .map(([_, value]) => value)
       .filter(value => value !== undefined)
       .reduce((acc, candidate) => Math.min(acc, candidate))
 
+  const leadingToTarget =
+    Array.from(previous.entries()).filter(([key, _]) => lodash.isEqual((JSON.parse(key) as DirPos).position, input.end) && weights.get(key) === lightest)
 
-  // const via = Array.from(previous.entries()).filter(([key, _]) => lodash.isEqual((JSON.parse(key) as DirPos).position, input.end))
+  let [, predecessors] = leadingToTarget[0]
 
+  // Note the array brackets, because otherwise, the set will be initiated from the string that is converted to a set,
+  // i.e. an array of single characters.
+  // Who thought that this conversion is a good idea?
+  let onPaths: Set<string> = new Set([JSON.stringify(input.end)])
 
-  // Debugging...
-  // let [pred, succ] = via[0]
-  // let finished = false
-  // while (!finished) {
-  //   const dirPos = JSON.parse(succ) as DirPos
-  //   console.log(`position: ${JSON.stringify(dirPos.position)}, direction: ${directionToSymbol(dirPos.enterDirection)}`)
-  //   const target = previous.get(pred)
-  //   if (target === undefined) {
-  //     finished = true
-  //   } else {
-  //     succ = pred
-  //     pred = target
-  //   }
-  // }
+  while (predecessors.length > 0) {
+    predecessors.forEach(predecessor => {
+      const position = (JSON.parse(predecessor) as DirPos).position
+      onPaths.add(JSON.stringify(position))
+    })
+    predecessors = predecessors.flatMap(predecessor => previous.get(predecessor) ?? [])
+  }
+  console.log(onPaths)
 
   return {
     part1: BigInt(lightest),
-    part2: BigInt(0)
+    part2: BigInt(onPaths.size)
   }
 }
 
