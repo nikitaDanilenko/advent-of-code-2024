@@ -74,14 +74,25 @@ function dijkstra(start: Position2d, maze: Maze): [Map<StringPosition, Tropical>
 
   const queue = new Set<StringPosition>()
 
-  // Initialization. We skip "previous[i] = undefined", because maps already behave like that.
-  maze.forEach((_, key) => {
+  // Initialization. We skip "previous[i] = undefined" (same for distances), because maps already behave like that.
+  maze.forEach((element, key) => {
     const position = JSON.parse(key) as Position2d
-    allDirections4.forEach(direction => {
-      const strDirPos = JSON.stringify({ enterDirection: direction, position: position })
-      queue.add(strDirPos)
-    })
+    // Minor simplification: Do not add walls, and directions from walls.
+    // But, see below, this requires the manual addition of the start!
+    if (element !== Element.Wall) {
+      allDirections4.forEach(direction => {
+        const previous = Types.positionInDirection4(position, Types.oppositeDirection4(direction))
+        const neighbour = maze.get(JSON.stringify(previous))
+        if (neighbour === Element.Empty) {
+          const strDirPos = JSON.stringify({ enterDirection: direction, position: position })
+          queue.add(strDirPos)
+        }
+      })
+    }
   })
+
+  // The start position comes from a wall (by choice), so we need to add it manually.
+  queue.add(JSON.stringify({ enterDirection: Direction4.Right, position: start }))
 
   distances.set(JSON.stringify({ enterDirection: Direction4.Right, position: start }), 0)
 
@@ -136,7 +147,6 @@ function dijkstra(start: Position2d, maze: Maze): [Map<StringPosition, Tropical>
 
 function solve(input: PuzzleInput): Solution<bigint> {
   const [weights, previous] = dijkstra(input.start, input.maze)
-
   // There is so much wrong here.
   // Why do we need conversions? Why is there no better function for set operations that fetch both components?
   const lightest =
@@ -162,7 +172,6 @@ function solve(input: PuzzleInput): Solution<bigint> {
     })
     predecessors = predecessors.flatMap(predecessor => previous.get(predecessor) ?? [])
   }
-  console.log(onPaths)
 
   return {
     part1: BigInt(lightest),
