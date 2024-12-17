@@ -28,8 +28,6 @@ function parse(input: string): PuzzleInput {
 const operandModulus: number = 4
 const valueModulus: bigint = 8n
 
-const names = ['adv', 'bxl', 'bst', 'jnz', 'bxc', 'out', 'bdv', 'cdv']
-
 function run(program: Program): System {
 
   const instructions = program.program
@@ -41,7 +39,6 @@ function run(program: Program): System {
     else {
       const literalOperand = instructions.at(system.instructionPointer + 1) !!
       const comboOperand = literalOperand < operandModulus ? BigInt(literalOperand) : system.registers.at(literalOperand % operandModulus)!!
-      console.log(`opcode = ${instruction}, operation = ${names.at(instruction)}, literalOperand = ${literalOperand}, comboOperand = ${comboOperand}`)
       const nextSystem: () => System = () => {
         switch (instruction) {
           case 0:
@@ -63,7 +60,6 @@ function run(program: Program): System {
         }
       }
       const next = nextSystem()
-      console.log(next)
       return iterate(next)
     }
   }
@@ -150,9 +146,7 @@ function cdv(value: bigint, system: System): System {
 }
 
 function solve(input: PuzzleInput): Solution<string> {
-  console.log(input)
   const system = run(input)
-  console.log(system.output)
   return {
     part1: system.output.map(o => o.toString()).join(','),
     part2: ''
