@@ -8,6 +8,11 @@ export type Position2d = {
   y: number
 }
 
+export function parsePosition2d(input: string): Position2d {
+  const [x, y] = input.split(',').map(c => parseInt(c))
+  return { x: x, y: y }
+}
+
 export function neighbours(position: Position2d): Position2d[] {
   return [
     { x: position.x - 1, y: position.y },
