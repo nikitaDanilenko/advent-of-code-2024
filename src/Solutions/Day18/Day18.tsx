@@ -53,12 +53,8 @@ function neighbours(
 function reachabilityLayers(start: Position2d[], target: Position2d[], map: ElementMap): Position2d[][] | undefined {
   let visited = new Set<StringPosition>()
   const targetSet = target.map(p => JSON.stringify(p))
-  let iteration = 0
 
   function iterate(currentLayer: Position2d[], layers: Position2d[][]): Position2d[][] | undefined {
-    console.log(`Iteration ${iteration++}`)
-    console.log(`Current layer: ${currentLayer.length}`)
-    console.log(visited.size)
     const currentLayerStrings = currentLayer.map(p => JSON.stringify(p))
     const intersectionWithTarget = lodash.intersection(currentLayerStrings, targetSet)
     if (intersectionWithTarget.length > 0) {
