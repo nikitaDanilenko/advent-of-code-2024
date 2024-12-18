@@ -80,17 +80,40 @@ function reachabilityLayers(start: Position2d[], target: Position2d[], map: Elem
 
 const dimension: number = 70
 
-function solve(input: PuzzleInput): Solution<bigint> {
+function solve(input: PuzzleInput): Solution<string> {
   const start = { x: 0, y: 0 }
   const target = { x: dimension, y: dimension }
   const trimmedSize = 1024
-  const map1 = toElementMap(input.positions.slice(0, trimmedSize))
+  const trimmedPositions = input.positions.slice(0, trimmedSize)
+  const map1 = toElementMap(trimmedPositions)
   const part1 = reachabilityLayers([start], [target], map1)!!
+
+  const remainingPositions = input.positions.slice(trimmedSize - 1)
+
+  let nextIndex = 0
+  let updatedMap = map1
+  let hasExitPath = true
+
+  // This could be a lot faster with a binary search.
+  // I made a half-hearted attempt, but it turned to be out trickier than I initially thought.
+  // TODO: Implement a binary search.
+  while (hasExitPath && nextIndex < remainingPositions.length) {
+    const nextByte = remainingPositions[nextIndex]
+    updatedMap = updatedMap.set(JSON.stringify(nextByte), Element.Byte)
+    const exitPath = reachabilityLayers([start], [target], updatedMap)
+    if (exitPath === undefined) {
+      hasExitPath = false
+    } else {
+      nextIndex++
+    }
+  }
+
+  const breakingPosition = remainingPositions[nextIndex]
 
   const shortest = part1.length
   return {
-    part1: BigInt(shortest),
-    part2: BigInt(0)
+    part1: shortest.toString(),
+    part2: `${breakingPosition.x},${breakingPosition.y}`
   }
 }
 
