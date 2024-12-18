@@ -1,10 +1,22 @@
-import { Solution } from '../Utils/Types.ts'
+import {parsePosition2d, Position2d, Solution} from '../Utils/Types.ts'
 import DayWith from '../Utils/DayUtil.tsx'
+import {parseStringPositionMap, parseStringPositionTypedMap, StringPosition} from "../Utils/InputUtil.ts";
 
-type PuzzleInput = string
+type PuzzleInput = {
+  positions: Position2d[]
+}
+
+type ElementMap = Map<StringPosition, Element>
+
+enum Element  {
+  Empty = '.',
+  Byte = '#'
+}
 
 function parse(input: string): PuzzleInput {
-  return input
+  return {
+    positions: input.split('\n').map(parsePosition2d)
+  }
 }
 
 function solve(input: PuzzleInput): Solution<bigint> {
