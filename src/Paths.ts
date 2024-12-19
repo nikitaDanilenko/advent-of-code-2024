@@ -17,6 +17,7 @@ import Day15 from './Solutions/Day15/Day15.tsx'
 import Day16 from './Solutions/Day16/Day16.tsx'
 import Day17 from "./Solutions/Day17/Day17.tsx";
 import Day18 from "./Solutions/Day18/Day18.tsx";
+import Day19 from "./Solutions/Day19/Day19.tsx";
 
 export const rootPath: string = '/'
 
@@ -39,7 +40,7 @@ export const days: (() => React.JSX.Element)[] = [
   Day16,
   Day17,
   Day18,
-  // Day19,
+  Day19,
   // Day20,
   // Day21,
   // Day22,
