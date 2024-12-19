@@ -1,5 +1,6 @@
 import {Solution} from '../Utils/Types.ts'
 import DayWith from '../Utils/DayUtil.tsx'
+import lodash from "lodash";
 
 type PuzzleInput = {
   patterns: Pattern[]
@@ -19,41 +20,38 @@ function parse(input: string): PuzzleInput {
   }
 }
 
-const matchableMap = new Map<string, boolean>()
+const matchableMap = new Map<string, number>()
 
-function match(towel: Towel, patterns: Pattern[]): boolean {
+function match(towel: Towel, patterns: Pattern[]): number {
   if (matchableMap.has(towel)) {
     return matchableMap.get(towel)!!
   }
   else if (towel.length === 0) {
-    return true
+    return 1
   }
   else {
     const matchingStarts = patterns.filter(pattern => towel.startsWith(pattern))
     if (matchingStarts.length > 0) {
-      const continuedMatch =
-        matchingStarts.some(pattern => match(towel.slice(pattern.length), patterns))
-      if (continuedMatch) {
-        matchableMap.set(towel, true)
-        return continuedMatch
-      } else {
-        matchableMap.set(towel, false)
-        return false
-      }
+      const continuedMatch = matchingStarts.map(pattern => match(towel.slice(pattern.length), patterns))
+      const all = lodash.sum(continuedMatch)
+      matchableMap.set(towel, all)
+      return all
     }
     else {
-      matchableMap.set(towel, false)
-      return false
+      matchableMap.set(towel, 0)
+      return 0
     }
   }
 }
 
 function solve(input: PuzzleInput): Solution<bigint> {
 
-  const matchableTowels = input.towels.filter(towel => match(towel, input.patterns))
+  const matches = input.towels.map(towel => match(towel, input.patterns))
+  const matchableTowels = matches.filter(m => m > 0)
+
   return {
     part1: BigInt(matchableTowels.length),
-    part2: BigInt(0)
+    part2: BigInt(lodash.sum(matchableTowels))
   }
 }
 
