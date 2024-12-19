@@ -20,31 +20,31 @@ function parse(input: string): PuzzleInput {
   }
 }
 
-const matchableMap = new Map<string, number>()
+function solve(input: PuzzleInput): Solution<bigint> {
 
-function match(towel: Towel, patterns: Pattern[]): number {
-  if (matchableMap.has(towel)) {
-    return matchableMap.get(towel)!!
-  }
-  else if (towel.length === 0) {
-    return 1
-  }
-  else {
-    const matchingStarts = patterns.filter(pattern => towel.startsWith(pattern))
-    if (matchingStarts.length > 0) {
-      const continuedMatch = matchingStarts.map(pattern => match(towel.slice(pattern.length), patterns))
-      const all = lodash.sum(continuedMatch)
-      matchableMap.set(towel, all)
-      return all
+  const matchableMap = new Map<string, number>()
+
+  function match(towel: Towel, patterns: Pattern[]): number {
+    if (matchableMap.has(towel)) {
+      return matchableMap.get(towel)!!
+    }
+    else if (towel.length === 0) {
+      return 1
     }
     else {
-      matchableMap.set(towel, 0)
-      return 0
+      const matchingStarts = patterns.filter(pattern => towel.startsWith(pattern))
+      if (matchingStarts.length > 0) {
+        const continuedMatch = matchingStarts.map(pattern => match(towel.slice(pattern.length), patterns))
+        const all = lodash.sum(continuedMatch)
+        matchableMap.set(towel, all)
+        return all
+      }
+      else {
+        matchableMap.set(towel, 0)
+        return 0
+      }
     }
   }
-}
-
-function solve(input: PuzzleInput): Solution<bigint> {
 
   const matches = input.towels.map(towel => match(towel, input.patterns))
   const matchableTowels = matches.filter(m => m > 0)
