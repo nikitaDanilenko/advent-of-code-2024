@@ -1,6 +1,5 @@
 import {Solution} from '../Utils/Types.ts'
 import DayWith from '../Utils/DayUtil.tsx'
-import * as string_decoder from "node:string_decoder";
 
 type PuzzleInput = {
   patterns: Pattern[]
@@ -20,10 +19,40 @@ function parse(input: string): PuzzleInput {
   }
 }
 
+const matchableMap = new Map<string, boolean>()
+
+function match(towel: Towel, patterns: Pattern[]): boolean {
+  if (matchableMap.has(towel)) {
+    return matchableMap.get(towel)!!
+  }
+  else if (towel.length === 0) {
+    return true
+  }
+  else {
+    const matchingStarts = patterns.filter(pattern => towel.startsWith(pattern))
+    if (matchingStarts.length > 0) {
+      const continuedMatch =
+        matchingStarts.some(pattern => match(towel.slice(pattern.length), patterns))
+      if (continuedMatch) {
+        matchableMap.set(towel, true)
+        return continuedMatch
+      } else {
+        matchableMap.set(towel, false)
+        return false
+      }
+    }
+    else {
+      matchableMap.set(towel, false)
+      return false
+    }
+  }
+}
+
 function solve(input: PuzzleInput): Solution<bigint> {
-  console.log(input)
+
+  const matchableTowels = input.towels.filter(towel => match(towel, input.patterns))
   return {
-    part1: BigInt(0),
+    part1: BigInt(matchableTowels.length),
     part2: BigInt(0)
   }
 }
