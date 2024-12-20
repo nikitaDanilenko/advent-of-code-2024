@@ -1,3 +1,5 @@
+import lodash from 'lodash'
+
 export type Pair<A, B> = {
   first: A
   second: B
@@ -11,6 +13,19 @@ export type Position2d = {
 export function parsePosition2d(input: string): Position2d {
   const [x, y] = input.split(',').map(c => parseInt(c))
   return { x: x, y: y }
+}
+
+export function p1ball(position2d: Position2d, radius: number): Position2d[] {
+  return lodash.range(-radius, radius).flatMap(y => {
+    return lodash.range(-radius, radius).map(x => {
+      if (Math.abs(x) + Math.abs(y) <= radius) {
+        return { x: x, y: y }
+      } else return undefined
+    })
+  }).filter(offset => offset !== undefined)
+    .map(offset => {
+      return { x: position2d.x + offset.x, y: position2d.y + offset.y }
+    })
 }
 
 export function neighbours(position: Position2d): Position2d[] {
