@@ -1,4 +1,6 @@
 import lodash from 'lodash'
+import { Position2d } from './Types.ts'
+import { StringPosition, StringPositionTypedMap } from './InputUtil.ts'
 
 export function absBigInt(x: bigint): bigint {
   return x >= 0 ? x : -x
@@ -30,4 +32,37 @@ export function applyWhile<A>(predicate: (a: A) => boolean, f: (a: A) => A, a: A
   }
 
   return applyWith(a, [])
+}
+
+export function reachabilityLayers<E>(
+  neighbours: (p: Position2d, m: StringPositionTypedMap<E>) => Position2d[],
+  start: Position2d[],
+  target: Position2d[],
+  map: StringPositionTypedMap<E>
+): Position2d[][] | undefined {
+  let visited = new Set<StringPosition>()
+  const targetSet = target.map(p => JSON.stringify(p))
+
+  function iterate(currentLayer: Position2d[], layers: Position2d[][]): Position2d[][] | undefined {
+    const currentLayerStrings = currentLayer.map(p => JSON.stringify(p))
+    const intersectionWithTarget = lodash.intersection(currentLayerStrings, targetSet)
+    if (intersectionWithTarget.length > 0) {
+      return layers
+    } else if (currentLayer.length === 0) {
+      return undefined
+    } else {
+      currentLayerStrings.forEach(position => visited.add(position))
+      const nextLayer =
+        lodash.uniqBy(
+          currentLayer
+            .flatMap(position => neighbours(position, map))
+            .filter(neighbour => !visited.has(JSON.stringify(neighbour))),
+          p => JSON.stringify(p)
+        )
+
+      return iterate(nextLayer, [...layers, currentLayer])
+    }
+  }
+
+  return iterate(start, [])
 }

@@ -3,6 +3,7 @@ import { parsePosition2d, Position2d, Solution } from '../Utils/Types.ts'
 import DayWith from '../Utils/DayUtil.tsx'
 import { StringPosition } from '../Utils/InputUtil.ts'
 import lodash from 'lodash'
+import * as MathUtil from '../Utils/MathUtil.ts'
 
 type PuzzleInput = {
   positions: Position2d[]
@@ -51,31 +52,7 @@ function neighbours(
 }
 
 function reachabilityLayers(start: Position2d[], target: Position2d[], map: ElementMap): Position2d[][] | undefined {
-  let visited = new Set<StringPosition>()
-  const targetSet = target.map(p => JSON.stringify(p))
-
-  function iterate(currentLayer: Position2d[], layers: Position2d[][]): Position2d[][] | undefined {
-    const currentLayerStrings = currentLayer.map(p => JSON.stringify(p))
-    const intersectionWithTarget = lodash.intersection(currentLayerStrings, targetSet)
-    if (intersectionWithTarget.length > 0) {
-      return layers
-    } else if (currentLayer.length === 0) {
-      return undefined
-    } else {
-      currentLayerStrings.forEach(position => visited.add(position))
-      const nextLayer =
-        lodash.uniqBy(
-          currentLayer
-            .flatMap(position => neighbours(position, map))
-            .filter(neighbour => !visited.has(JSON.stringify(neighbour))),
-          p => JSON.stringify(p)
-        )
-
-      return iterate(nextLayer, [...layers, currentLayer])
-    }
-  }
-
-  return iterate(start, [])
+  return MathUtil.reachabilityLayers(neighbours, start, target, map)
 }
 
 const dimension: number = 70
