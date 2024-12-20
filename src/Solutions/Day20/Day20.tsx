@@ -62,29 +62,40 @@ function shortest(start: Position2d, end: Position2d, elementMap: ElementMap): n
 function follow(input: PuzzleInput, target: Position2d): Position2d[] {
   const visited = new Set<StringPosition>()
 
-  function iterate(current: Position2d, onPath: Position2d[]): Position2d[] {
-    if (lodash.isEqual(current, target))
-      return onPath
-    else {
-      visited.add(JSON.stringify(current))
-      const next = neighbours(current, input.map).filter(neighbour => !visited.has(JSON.stringify(neighbour)))
-      const nextPath = next.flatMap(neighbour => iterate(neighbour, [...onPath, neighbour]))
-      return nextPath
-    }
+  let current = input.start
+  let onPath: Position2d[] = []
+
+  while (!lodash.isEqual(current, target)) {
+    visited.add(JSON.stringify(current))
+    const next = neighbours(current, input.map).filter(neighbour => !visited.has(JSON.stringify(neighbour)))[0]
+    onPath.push(next)
+    current = next
   }
 
-  return iterate(input.start, [])
+  return onPath
 }
 
 function findAllShortcuts(input: PuzzleInput): number {
   const defaultPath = follow(input, input.end)
   const defaultLength = defaultPath.length
+  console.log(defaultLength)
   const distances =
     new Map(
       defaultPath.map((pos, index) => {
         return [JSON.stringify(pos), defaultLength - 1 - index] as [StringPosition, number]
       }))
       .set(JSON.stringify(input.start), defaultLength)
+
+
+  const allWalls = Array.from(input.map.entries())
+    .filter(([pos, value]) => {
+        const position = JSON.parse(pos) as Position2d
+        return value === Element.WALL && position.x !== 0 && position.y !== 0 && position.x !== input.width - 1 && position.y !== input.height - 1
+      }
+    )
+    .map(([pos]) => JSON.parse(pos) as Position2d)
+
+  console.log(allWalls.length)
 
   function checkWall(position: Position2d): number | undefined {
     const changedMap = new Map(input.map).set(JSON.stringify(position), Element.EMPTY)
@@ -100,14 +111,6 @@ function findAllShortcuts(input: PuzzleInput): number {
     } else
       return undefined
   }
-
-  const allWalls = Array.from(input.map.entries())
-    .filter(([pos, value]) => {
-        const position = JSON.parse(pos) as Position2d
-        return value === Element.WALL && position.x !== 0 && position.y !== 0 && position.x !== input.width - 1 && position.y !== input.height - 1
-      }
-    )
-    .map(([pos]) => JSON.parse(pos) as Position2d)
 
   const shorter = allWalls.filter(pos => {
     const withoutWall = checkWall(pos)
