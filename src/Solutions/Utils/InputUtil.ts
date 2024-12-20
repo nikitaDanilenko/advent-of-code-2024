@@ -12,7 +12,6 @@ export function parseStringPositionMap(input: string): StringPositionMap {
   return parseStringPositionTypedMap(input, (char) => char)
 }
 
-// We could also add parsing as a function, so we do not need that many conversions.
 export function parseStringPositionTypedMap<T>(
   input: string,
   parse: (_: string) => (T | undefined)
@@ -25,7 +24,7 @@ export function parseStringPositionTypedMap<T>(
         if (candidate === undefined) {
           return undefined
         } else {
-          return [JSON.stringify({x: x, y: y}), candidate] as [StringPosition, T]
+          return [JSON.stringify({ x: x, y: y }), candidate] as [StringPosition, T]
         }
       })
       .filter((entry) => entry !== undefined)
