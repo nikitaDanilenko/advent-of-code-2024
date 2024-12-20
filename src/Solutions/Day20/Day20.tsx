@@ -78,43 +78,34 @@ function follow(input: PuzzleInput, target: Position2d): Position2d[] {
 function findAllShortcuts(input: PuzzleInput): number {
   const defaultPath = follow(input, input.end)
   const defaultLength = defaultPath.length
-  console.log(defaultLength)
-  const distances =
+  const indicesOnDefaultPath =
     new Map(
-      defaultPath.map((pos, index) => {
-        return [JSON.stringify(pos), defaultLength - 1 - index] as [StringPosition, number]
-      }))
-      .set(JSON.stringify(input.start), defaultLength)
-
+      defaultPath.map((pos, index) => [JSON.stringify(pos), index + 1])
+    )
+      .set(JSON.stringify(input.start), 0)
 
   const allWalls = Array.from(input.map.entries())
     .filter(([pos, value]) => {
         const position = JSON.parse(pos) as Position2d
-        return value === Element.WALL && position.x !== 0 && position.y !== 0 && position.x !== input.width - 1 && position.y !== input.height - 1
+        // If there are less than two empty spaces, then removing the wall will not change anything.
+        const around = neighbours(position, input.map).length
+
+        return value === Element.WALL && around > 1 && position.x !== 0 && position.y !== 0 && position.x !== input.width - 1 && position.y !== input.height - 1
       }
     )
     .map(([pos]) => JSON.parse(pos) as Position2d)
 
-  console.log(allWalls.length)
-
-  function checkWall(position: Position2d): number | undefined {
-    const changedMap = new Map(input.map).set(JSON.stringify(position), Element.EMPTY)
-    const firstSegment = shortest(input.start, position, changedMap)
-    if (firstSegment !== undefined) {
-      const candidates = neighbours(position, input.map)
-      const minimum = lodash.min(candidates.map(candidate => {
-          const distance = distances.get(JSON.stringify(candidate))
-          return distance !== undefined ? distance + 1 + firstSegment : undefined
-        }).filter(distance => distance !== undefined)
-      )
-      return minimum
-    } else
-      return undefined
+  function checkWall(position2d: Position2d): number | undefined {
+    const aroundIndices = neighbours(position2d, input.map)
+      .map(neighbour => indicesOnDefaultPath.get(JSON.stringify(neighbour)))
+    const min = lodash.min(aroundIndices)!!
+    const max = lodash.max(aroundIndices)!!
+    return min + 2 + (defaultLength - max)
   }
 
   const shorter = allWalls.filter(pos => {
     const withoutWall = checkWall(pos)
-    return withoutWall !== undefined && withoutWall < defaultLength
+    return withoutWall !== undefined && withoutWall <= defaultLength - 100
   })
 
   return shorter.length
