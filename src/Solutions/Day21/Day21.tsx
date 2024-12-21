@@ -302,12 +302,19 @@ function parse(input: string): PuzzleInput {
     .map(l => l.split('').map(parseNumPad))
 }
 
-function unwrapPart1(input: PuzzleInput): bigint {
+
+function unwrapN(input: PuzzleInput, n: number): bigint {
   const values = input.map(numpad => {
     const firstIndirection = unwrapNumpad(numpad)
-    const secondIndirection = unwrapDirectional(firstIndirection)
-    const thirdIndirection = unwrapDirectional(secondIndirection)
-    const length = BigInt(thirdIndirection.length)
+
+    let finalIndirection = firstIndirection
+    let counter = n
+    while (counter > 0) {
+      counter--
+      finalIndirection = unwrapDirectional(finalIndirection)
+    }
+
+    const length = BigInt(finalIndirection.length)
     const numeric = BigInt(lodash.takeWhile(numpad, n => n !== NumPad.A).join(''))
     return length * numeric
   })
@@ -316,10 +323,11 @@ function unwrapPart1(input: PuzzleInput): bigint {
 }
 
 function solve(input: PuzzleInput): Solution<bigint> {
-  const part1 = unwrapPart1(input)
+  const part1 = unwrapN(input, 2)
+  const part2 = unwrapN(input, 14)
   return {
     part1: part1,
-    part2: BigInt(0)
+    part2: part2
   }
 }
 
