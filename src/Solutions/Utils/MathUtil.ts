@@ -14,6 +14,10 @@ export function min(list: lodash.List<bigint>): bigint | undefined {
   return lodash.reduce(list, (acc, value) => acc < value ? acc : value)
 }
 
+/**
+ * Careful: If you want the nth application, use n + 1,
+ * because the last value added to the list is the second to last application.
+ */
 export function applyN<A>(n: number, f: (a: A) => A, a: A): A[] {
   function applyWith(applied: A, remaining: number, values: A[]): A[] {
     return remaining === 0
@@ -22,6 +26,18 @@ export function applyN<A>(n: number, f: (a: A) => A, a: A): A[] {
   }
 
   return applyWith(a, n, [])
+}
+
+/** Careful: If you want the nth application, really use n.
+ */
+export function applyNOnlyLast<A>(n: number, f: (a: A) => A, a: A): A {
+  function applyWith(applied: A, remaining: number): A {
+    return remaining === 0
+      ? applied
+      : applyWith(f(applied), remaining - 1)
+  }
+
+  return applyWith(a, n)
 }
 
 export function applyWhile<A>(predicate: (a: A) => boolean, f: (a: A) => A, a: A): A[] {
