@@ -79,7 +79,7 @@ function maxPrice(input: PuzzleInput): bigint {
       new Map<string, bigint>()
     )
 
-  return lodash.max([...result.values()])!
+  return lodash.max(Array.from(result.values()))!
 }
 
 function solve(input: PuzzleInput): Solution<bigint> {
