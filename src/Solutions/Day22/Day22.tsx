@@ -52,7 +52,7 @@ function fourDiffMap(numbers: bigint[]): Map<string, bigint> {
     )
 
     const key = differences.join(',')
-    const value = lodash.last(prices)!!
+    const value = lodash.last(prices)!
     if (!map.has(key))
       map.set(key, value)
   }

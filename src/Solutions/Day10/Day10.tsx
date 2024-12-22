@@ -28,7 +28,7 @@ function neighborPositions(position: Position2d): Position2d[] {
 // BFS, but we do not need to keep track of visited nodes, because there is never a way back.
 function successors(position: Position2d, map: NumberMap): Position2d[] {
   const candidates = neighborPositions(position)
-  const atPosition = map.get(JSON.stringify(position))!!
+  const atPosition = map.get(JSON.stringify(position))!
   const connected = makeUnique(
     candidates.flatMap(candidate => {
       const key = JSON.stringify(candidate)
@@ -50,7 +50,7 @@ function successorsWithPaths(
 ): [Position2d, Path[]][] {
   const [position, paths] = positionWithPaths
   const candidates = neighborPositions(position)
-  const atPosition = map.get(JSON.stringify(position))!!
+  const atPosition = map.get(JSON.stringify(position))!
   const connected = candidates.flatMap(candidate => {
     const key = JSON.stringify(candidate)
     const value = map.get(key)

@@ -67,7 +67,7 @@ function computeViaAmount(iterations: number, stones: Stone[]): Amounts {
   )
 
   // The "+1" is necessary, because applyN is 0-based, i.e. the first element is the unmodified input.
-  return lodash.last(applyN(iterations + 1, blink, amountMap))!!
+  return lodash.last(applyN(iterations + 1, blink, amountMap))!
 }
 
 function solve(input: PuzzleInput): Solution<bigint> {

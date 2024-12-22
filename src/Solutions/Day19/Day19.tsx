@@ -1,6 +1,6 @@
-import {Solution} from '../Utils/Types.ts'
+import { Solution } from '../Utils/Types.ts'
 import DayWith from '../Utils/DayUtil.tsx'
-import lodash from "lodash";
+import lodash from 'lodash'
 
 type PuzzleInput = {
   patterns: Pattern[]
@@ -26,20 +26,17 @@ function solve(input: PuzzleInput): Solution<bigint> {
 
   function match(towel: Towel, patterns: Pattern[]): number {
     if (matchableMap.has(towel)) {
-      return matchableMap.get(towel)!!
-    }
-    else if (towel.length === 0) {
+      return matchableMap.get(towel)!
+    } else if (towel.length === 0) {
       return 1
-    }
-    else {
+    } else {
       const matchingStarts = patterns.filter(pattern => towel.startsWith(pattern))
       if (matchingStarts.length > 0) {
         const continuedMatch = matchingStarts.map(pattern => match(towel.slice(pattern.length), patterns))
         const all = lodash.sum(continuedMatch)
         matchableMap.set(towel, all)
         return all
-      }
-      else {
+      } else {
         matchableMap.set(towel, 0)
         return 0
       }

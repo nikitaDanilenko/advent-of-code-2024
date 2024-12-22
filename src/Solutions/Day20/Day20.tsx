@@ -33,8 +33,8 @@ function parse(input: string): PuzzleInput {
   const asArray = Array.from(preMap.entries())
   const width = asArray.filter(([key]) => JSON.parse(key).y === 0).length
   const height = asArray.length / width
-  const start = asArray.find(([_, value]) => value === 'S')!![0]
-  const end = asArray.find(([_, value]) => value === 'E')!![0]
+  const start = asArray.find(([_, value]) => value === 'S')![0]
+  const end = asArray.find(([_, value]) => value === 'E')![0]
 
 
   return {

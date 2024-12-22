@@ -66,7 +66,7 @@ function parse(input: string): PuzzleInput {
         return [{ x: x, y: y }, char] as [Position2d, string]
       })
     })
-  const robot = positions.find(([_, char]) => char === '@')!![0]
+  const robot = positions.find(([_, char]) => char === '@')![0]
   const map = new Map(
     positions.map(([position, char]) => {
       return [JSON.stringify(position), parseElement(char)]
@@ -95,7 +95,7 @@ function parse(input: string): PuzzleInput {
     })
   })
 
-  const robotOnWidened = widenedPositions.find(([_, char]) => char === '@')!![0]
+  const robotOnWidened = widenedPositions.find(([_, char]) => char === '@')![0]
   const wideMap = new Map(
     widenedPositions.map(([position, char]) => {
       return [JSON.stringify(position), parseWideElement(char)]
@@ -118,7 +118,7 @@ function moveSequence(input: PuzzleInput): [ElementMap, Position2d] {
 
   function move(position: Position2d, direction: Direction4): Position2d {
     const targetPosition = positionInDirection4(position, direction)
-    const targetElement = map.get(JSON.stringify(targetPosition))!!
+    const targetElement = map.get(JSON.stringify(targetPosition))!
 
     if (targetElement === Element.Wall) {
       return position
@@ -134,8 +134,8 @@ function moveSequence(input: PuzzleInput): [ElementMap, Position2d] {
           .filter(([, e]) => e !== undefined),
         ([, e]) => e === Element.Box
       )
-      const positionAfterBox = positionInDirection4(lodash.last(boxes)!![0], direction)
-      const elementAfterBox = map.get(JSON.stringify(positionAfterBox))!!
+      const positionAfterBox = positionInDirection4(lodash.last(boxes)![0], direction)
+      const elementAfterBox = map.get(JSON.stringify(positionAfterBox))!
       if (elementAfterBox === Element.Wall) {
         return position
       }
@@ -229,7 +229,7 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
 
   function move(position: Position2d, direction: Direction4): Position2d {
     const targetPosition = positionInDirection4(position, direction)
-    const targetElement = map.get(JSON.stringify(targetPosition))!!
+    const targetElement = map.get(JSON.stringify(targetPosition))!
 
     if (targetElement === WideElement.Wall) {
       return position
@@ -259,7 +259,7 @@ function moveSequenceWidened(input: PuzzleInput): [WideElementMap, Position2d] {
       )
       if (allMovable) {
         const withStringPositions = boxPositions.map(pos => [pos, JSON.stringify(pos)] as [Position2d, StringPosition])
-        const currentElements = withStringPositions.map(([pos, strPos]) => [pos, map.get(strPos)!!] as [Position2d, WideElement])
+        const currentElements = withStringPositions.map(([pos, strPos]) => [pos, map.get(strPos)!] as [Position2d, WideElement])
         // Delete old values
         withStringPositions.forEach(([, strPos]) => {
           map.set(strPos, WideElement.Empty)

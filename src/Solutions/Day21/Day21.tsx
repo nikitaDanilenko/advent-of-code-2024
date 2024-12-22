@@ -341,7 +341,7 @@ function unwrapN(input: PuzzleInput, n: number): bigint {
 
   const numpadValues = input.map(numpad => {
     const initialRepresentation = addUngroupedDirections(BigInt(1), unwrapNumpad(numpad), new Map<string, bigint>())
-    const finalRepresentation = lodash.last(applyN(n + 1, next, initialRepresentation))!!
+    const finalRepresentation = lodash.last(applyN(n + 1, next, initialRepresentation))!
     const length = sum(Array.from(finalRepresentation.entries()).map(([key, v]) => BigInt(key.length) * v))
     const numeric = BigInt(lodash.takeWhile(numpad, n => n !== NumPad.A).join(''))
     return length * numeric

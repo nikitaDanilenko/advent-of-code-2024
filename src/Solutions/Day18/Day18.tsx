@@ -63,7 +63,7 @@ function solve(input: PuzzleInput): Solution<string> {
   const trimmedSize = 1024
   const trimmedPositions = input.positions.slice(0, trimmedSize)
   const map1 = toElementMap(trimmedPositions)
-  const part1 = reachabilityLayers([start], [target], map1)!!
+  const part1 = reachabilityLayers([start], [target], map1)!
 
   const remainingPositions = input.positions.slice(trimmedSize - 1)
 

@@ -108,7 +108,7 @@ function solve(input: PuzzleInput) {
   const byCharacterMap = new Map(byCharacter)
 
   const byKey1 = Array.from(byCharacterMap.keys()).map(key => {
-    return antiNodes(byCharacterMap.get(key)!!, 1, input.width, input.height)
+    return antiNodes(byCharacterMap.get(key)!, 1, input.width, input.height)
   })
 
   const all1 = lodash.union(...byKey1)
@@ -119,7 +119,7 @@ function solve(input: PuzzleInput) {
     // BUT: The implementation is very simple, correct, and the runtime is still significantly below 1 second,
     // which is good enough for me.
     return antiNodes(
-      byCharacterMap.get(key)!!,
+      byCharacterMap.get(key)!,
       input.width,
       input.width,
       input.height

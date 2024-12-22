@@ -33,7 +33,7 @@ function neighboursOnMap(
   map: Map<string, Symbol>
 ): [Cell, Position2d[]] {
   const stringPosition = JSON.stringify(position)
-  const symbol = map.get(stringPosition)!!
+  const symbol = map.get(stringPosition)!
   const next = neighbours(position).filter(neighbour => {
     const neighbourSymbol = map.get(JSON.stringify(neighbour))
     return neighbour !== undefined && neighbourSymbol === symbol
@@ -80,7 +80,7 @@ function allNeighbourhoods(map: Map<string, Symbol>): Cell[][] {
   }
 
   while (unvisited.size > 0) {
-    const key = unvisited.values().next().value!!
+    const key = unvisited.values().next().value!
     const position = JSON.parse(key) as Position2d
     const neighbourhood = neighbourhoodOnMap(position, map)
     neighbourhoods.push(neighbourhood)

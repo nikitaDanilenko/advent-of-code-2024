@@ -37,8 +37,8 @@ function run(program: Program, ignoreJump: boolean): System {
     if (instruction === undefined)
       return system
     else {
-      const literalOperand = instructions.at(system.instructionPointer + 1) !!
-      const comboOperand = literalOperand < operandModulus ? BigInt(literalOperand) : system.registers.at(literalOperand % operandModulus)!!
+      const literalOperand = instructions.at(system.instructionPointer + 1) !
+      const comboOperand = literalOperand < operandModulus ? BigInt(literalOperand) : system.registers.at(literalOperand % operandModulus)!
       const nextSystem: () => System = () => {
         switch (instruction) {
           case 0:
@@ -201,7 +201,7 @@ function solve(input: PuzzleInput): Solution<string> {
         [] as bigint[]
       )
 
-  const part2 = min(all)!!
+  const part2 = min(all)!
 
   return {
     part1: system.output.map(o => o.toString()).join(','),
