@@ -68,7 +68,6 @@ function addMaps(map1: Map<string, bigint>, map2: Map<string, bigint>): Map<stri
   return result
 }
 
-
 function maxPrice(input: PuzzleInput): bigint {
   const result =
     input.reduce(
