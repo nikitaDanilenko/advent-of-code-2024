@@ -1,7 +1,8 @@
 import { Solution } from '../Utils/Types.ts'
 import DayWith from '../Utils/DayUtil.tsx'
 import lodash from 'lodash'
-import { sum } from '../Utils/MathUtil.ts'
+import { applyN, sum } from '../Utils/MathUtil.ts'
+import { chunksEndingWith } from '../Utils/CollectionUtil.ts'
 
 type PuzzleInput = NumPad[][]
 
@@ -97,7 +98,8 @@ function parseArrow(stringArrow: StringArrow): Arrow {
  * 1. Group identical directions when possible
  * 2. The end symbol matters a lot, because after that we usually go to an A,
  *    and being close to A is beneficial. This gives the following order of preferences *when possible*
- *    * Up, Right
+ *    * Right
+ *    * Up
  *    * Down
  *    * Left
  *
@@ -246,16 +248,16 @@ const directionalArrows = [
   { from: 'v', to: '<', directions: '<' },
   { from: 'v', to: '^', directions: '^' },
   { from: 'v', to: '>', directions: '>' },
-  { from: 'v', to: 'A', directions: '>^' },
+  { from: 'v', to: 'A', directions: '^>' },
 
   { from: '>', to: '<', directions: '<<' },
-  { from: '>', to: '^', directions: '^<' },
+  { from: '>', to: '^', directions: '<^' },
   { from: '>', to: 'v', directions: '<' },
   { from: '>', to: 'A', directions: '^' },
 
   { from: 'A', to: '<', directions: 'v<<' },
   { from: 'A', to: '^', directions: '<' },
-  { from: 'A', to: 'v', directions: 'v<' },
+  { from: 'A', to: 'v', directions: '<v' },
   { from: 'A', to: '>', directions: 'v' }
 
 ].map(parseArrow)
@@ -302,29 +304,56 @@ function parse(input: string): PuzzleInput {
     .map(l => l.split('').map(parseNumPad))
 }
 
+function groupDirections(directions: Directional[]) {
+  return chunksEndingWith(directions.map(d => d.toString()).join(''), Directional.A)
+    .map(chunk => [chunk, BigInt(1)] as [string, bigint])
+}
 
 function unwrapN(input: PuzzleInput, n: number): bigint {
-  const values = input.map(numpad => {
-    const firstIndirection = unwrapNumpad(numpad)
+  // Represents how often a block of directions occurs in the current unwrapped directions expression
+  type Representation = Map<string, bigint>
 
-    let finalIndirection = firstIndirection
-    let counter = n
-    while (counter > 0) {
-      counter--
-      finalIndirection = unwrapDirectional(finalIndirection)
-    }
+  function addUngroupedDirections(
+    currentNumber: bigint,
+    directions: Directional[],
+    representation: Representation
+  ): Representation {
+    const updatedRepresentation = new Map(representation)
 
-    const length = BigInt(finalIndirection.length)
+    groupDirections(directions).forEach(([k, v]) => {
+      const present = updatedRepresentation.get(k) ?? BigInt(0)
+      updatedRepresentation.set(k, present + v * currentNumber)
+    })
+
+    return updatedRepresentation
+  }
+
+  function next(representation: Representation): Representation {
+    const newRepresentation = Array.from(representation.entries()).reduce(
+      (acc, [k, v]) => {
+        const asDirections = unwrapDirectional(k.split('').map(parseDirectional))
+        return addUngroupedDirections(v, asDirections, acc)
+      },
+      new Map<string, bigint>()
+    )
+    return newRepresentation
+  }
+
+  const numpadValues = input.map(numpad => {
+    const initialRepresentation = addUngroupedDirections(BigInt(1), unwrapNumpad(numpad), new Map<string, bigint>())
+    const finalRepresentation = lodash.last(applyN(n + 1, next, initialRepresentation))!!
+    const length = sum(Array.from(finalRepresentation.entries()).map(([key, v]) => BigInt(key.length) * v))
     const numeric = BigInt(lodash.takeWhile(numpad, n => n !== NumPad.A).join(''))
     return length * numeric
   })
 
-  return sum(values)
+  return BigInt(sum(numpadValues))
 }
 
 function solve(input: PuzzleInput): Solution<bigint> {
   const part1 = unwrapN(input, 2)
-  const part2 = unwrapN(input, 14)
+  const part2 = unwrapN(input, 25)
+
   return {
     part1: part1,
     part2: part2
