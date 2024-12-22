@@ -60,12 +60,9 @@ function fourDiffMap(numbers: bigint[]): Map<string, bigint> {
 }
 
 function addMaps(map1: Map<string, bigint>, map2: Map<string, bigint>): Map<string, bigint> {
-  const result = new Map<string, bigint>()
-  const keys = new Set([...map1.keys(), ...map2.keys()])
-  keys.forEach(key => {
-    const value1 = map1.get(key) ?? BigInt(0)
-    const value2 = map2.get(key) ?? BigInt(0)
-    result.set(key, value1 + value2)
+  const result = new Map(map1)
+  Array.from(map2.entries()).forEach(([key, value]) => {
+    result.set(key, (result.get(key) ?? BigInt(0)) + value)
   })
 
   return result
