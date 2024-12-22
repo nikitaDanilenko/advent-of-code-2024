@@ -1,6 +1,7 @@
 import { Solution } from '../Utils/Types.ts'
 import DayWith from '../Utils/DayUtil.tsx'
-import { applyNOnlyLast, sum } from '../Utils/MathUtil.ts'
+import { applyN, applyNOnlyLast, sum } from '../Utils/MathUtil.ts'
+import lodash from 'lodash'
 
 type PuzzleInput = bigint[]
 
@@ -32,16 +33,66 @@ function twoK(initial: bigint): bigint {
   return applyNOnlyLast(2000, next, initial)
 }
 
+function firstTwoK(initial: bigint): bigint[] {
+  return applyN(2001, next, initial)
+}
+
 function sumOfTwoKs(initials: bigint[]): bigint {
   return sum(initials.map(twoK))
 }
 
+function fourDiffMap(numbers: bigint[]): Map<string, bigint> {
+  const map = new Map<string, bigint>()
+  for (let i = 0; i < numbers.length - 5; i++) {
+    const prices = numbers.slice(i, i + 5)
+    const differences = lodash.zipWith(
+      lodash.initial(prices),
+      lodash.tail(prices),
+      (a, b) => b - a
+    )
+
+    const key = differences.join(',')
+    const value = lodash.last(prices)!!
+    if (!map.has(key))
+      map.set(key, value)
+  }
+  return map
+}
+
+function addMaps(map1: Map<string, bigint>, map2: Map<string, bigint>): Map<string, bigint> {
+  const result = new Map<string, bigint>()
+  const keys = new Set([...map1.keys(), ...map2.keys()])
+  keys.forEach(key => {
+    const value1 = map1.get(key) ?? BigInt(0)
+    const value2 = map2.get(key) ?? BigInt(0)
+    result.set(key, value1 + value2)
+  })
+
+  return result
+}
+
+
+function maxPrice(input: PuzzleInput): bigint {
+  const result =
+    input.reduce(
+      (map, number) => {
+        const prices = firstTwoK(number).map(n => n % 10n)
+        const diffMap = fourDiffMap(prices)
+        return addMaps(map, diffMap)
+      },
+      new Map<string, bigint>()
+    )
+
+  return lodash.max([...result.values()])!
+}
+
 function solve(input: PuzzleInput): Solution<bigint> {
   const part1 = sumOfTwoKs(input)
+  const part2 = maxPrice(input)
 
   return {
     part1: part1,
-    part2: BigInt(0)
+    part2: part2
   }
 }
 
