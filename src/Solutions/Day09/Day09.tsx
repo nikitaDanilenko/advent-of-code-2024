@@ -196,7 +196,7 @@ function solvePart2(input: string): bigint {
       .filter(x => x.index !== undefined)
       .map(x => {
         const range = lodash.range(0, x.length)
-        const index = BigInt(x.index!!)
+        const index = BigInt(x.index!)
         const subSum = sum(range.map(y => BigInt(x.start + y) * index))
         return subSum
       })

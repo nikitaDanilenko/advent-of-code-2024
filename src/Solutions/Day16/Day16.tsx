@@ -26,7 +26,7 @@ function parse(input: string): PuzzleInput {
   const entries = Array.from(map.entries())
 
   function findPosition(char: string): Position2d {
-    return JSON.parse(lodash.find(entries, ([, value]) => value === char)!![0]) as Position2d
+    return JSON.parse(lodash.find(entries, ([, value]) => value === char)![0]) as Position2d
   }
 
   const start = findPosition('S')

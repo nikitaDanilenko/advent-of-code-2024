@@ -29,7 +29,7 @@ function Day06() {
         .map(([pos]) => JSON.stringify(pos))
     )
 
-    const startingPosition = indexed.find(([, char]) => char === '^')!![0]
+    const startingPosition = indexed.find(([, char]) => char === '^')![0]
 
     return {
       obstacles: obstacles,
@@ -172,6 +172,7 @@ function Day06() {
         }
         return isOnLoop(modifiedInput)
       }
+
       return position !== JSON.stringify(input.start) && checkLoop()
     }).length
 
