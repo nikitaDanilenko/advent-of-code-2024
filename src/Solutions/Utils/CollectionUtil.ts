@@ -1,3 +1,5 @@
+import lodash from 'lodash'
+
 export function takeUntilRemainderStartsWith(
   fragment: string,
   text: string
@@ -8,6 +10,15 @@ export function takeUntilRemainderStartsWith(
     : [text, '']
 }
 
+export function chunksEndingWith(
+  text: string,
+  ending: string
+): string[] {
+  const allParts = text.split(ending)
+  const correctedParts = text.endsWith(ending) ? lodash.initial(allParts) : allParts
+  return correctedParts.map(part => part + ending)
+}
+
 /**
  * Exact copy from Haskell, but specialized to the list monad.
  */
@@ -16,6 +27,7 @@ export function foldrM<A, R>(f: (a: A, r: R) => R[], acc: R, list: A[]): R[] {
     function result(z: R): R[] {
       return f(x, z).flatMap(k)
     }
+
     return result
   }
 
