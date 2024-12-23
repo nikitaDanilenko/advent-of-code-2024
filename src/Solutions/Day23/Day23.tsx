@@ -36,51 +36,6 @@ function makeGraph(edges: Edge[]): Graph {
   return graph
 }
 
-function reachabilityLayers(start: Node[], graph: Graph): Node[][] {
-  let visited = new Set<Node>(start)
-
-  function iterate(currentLayer: Node[], layers: Node[][]): Node[][] {
-    if (currentLayer.length === 0) {
-      return layers
-    } else {
-      const nextLayer = currentLayer
-        .flatMap(node => graph.get(node) || [])
-        .filter(neighbour => !visited.has(neighbour))
-      currentLayer.forEach(node => visited.add(node))
-      return iterate(nextLayer, [...layers, currentLayer])
-    }
-  }
-
-  return iterate(start, [])
-}
-
-function connectedComponents(graph: Graph): Node[][] {
-  function step(node: Node): Node[] {
-    const layers = reachabilityLayers([node], graph)
-    const component = layers.flat()
-    return component
-  }
-
-  let unvisited = new Set(graph.keys())
-  let components: Node[][] = []
-  while (unvisited.size > 0) {
-    const node = lodash.first([...unvisited])!
-    const component = step(node)
-    components = [...components, component]
-    component.forEach(node => unvisited.delete(node))
-  }
-
-  return components
-}
-
-function threeNodeComponentsWithT(graph: Graph): Node[][] {
-  const components = connectedComponents(graph)
-  return components.filter(component => {
-    const existsT = lodash.some(component, node => node.startsWith('t'))
-    return component.length === 3 && existsT
-  })
-}
-
 function triangleNodes(graph: Graph): Node[][] {
   let unvisited = new Set(graph.keys())
 
