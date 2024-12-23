@@ -20,9 +20,9 @@ export function min(list: lodash.List<bigint>): bigint | undefined {
  */
 export function applyN<A>(n: number, f: (a: A) => A, a: A): A[] {
   let values: A[] = []
-  
+
   function applyWith(applied: A, remaining: number) {
-    if (remaining === 0) {
+    if (remaining <= 0) {
       return values
     } else {
       values.push(applied)
@@ -36,13 +36,15 @@ export function applyN<A>(n: number, f: (a: A) => A, a: A): A[] {
 /** Careful: If you want the nth application, really use n.
  */
 export function applyNOnlyLast<A>(n: number, f: (a: A) => A, a: A): A {
-  function applyWith(applied: A, remaining: number): A {
-    return remaining === 0
-      ? applied
-      : applyWith(f(applied), remaining - 1)
+  let currentApplication = a
+  let remaining = n
+
+  while (remaining > 0) {
+    currentApplication = f(currentApplication)
+    remaining--
   }
 
-  return applyWith(a, n)
+  return currentApplication
 }
 
 export function applyWhile<A>(predicate: (a: A) => boolean, f: (a: A) => A, a: A): A[] {
