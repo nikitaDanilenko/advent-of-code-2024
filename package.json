@@ -24,7 +24,7 @@
     "deploy": "gh-pages -d build",
     "start": "vite",
     "build": "vite build",
-    "test": "vite test",
+    "test": "vitest",
     "serve": "vite preview"
   },
   "eslintConfig": {
@@ -48,7 +48,9 @@
   "homepage": "https://nikitadanilenko.github.io/advent-of-code-2024",
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
+    "fast-check": "^3.23.2",
     "prettier": "3.4.2",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "vitest": "^2.1.8"
   }
 }
