@@ -24,6 +24,28 @@ enum Operation {
   XOR = 'XOR'
 }
 
+type Output = {
+  name: string
+  value: boolean
+}
+
+function evaluateGate(gate: Gate, input1: boolean, input2: boolean): Output {
+  const result = () => {
+    switch (gate.operation) {
+      case Operation.AND:
+        return input1 && input2
+      case Operation.OR:
+        return input1 || input2
+      default:
+        return input1 !== input2
+    }
+  }
+  return {
+    name: gate.output,
+    value: result()
+  }
+}
+
 function parseOperation(string: string): Operation {
   switch (string) {
     case Operation.AND:
@@ -63,10 +85,49 @@ function parse(input: string): PuzzleInput {
   }
 }
 
+
+function process(input: PuzzleInput): bigint {
+
+  function processOnce(wires: Map<string, boolean>, gates: Gate[]): [Map<string, boolean>, boolean] {
+    const newWires = new Map(wires)
+    let changed = false
+    gates.forEach(gate => {
+      const input1 = wires.get(gate.input1)
+      const input2 = wires.get(gate.input2)
+      if (input1 !== undefined && input2 !== undefined) {
+        const output = evaluateGate(gate, input1, input2)
+        newWires.set(output.name, output.value)
+        // There is a "no loop" condition, i.e. the value of a wire will never be overwritten.
+        changed = newWires.size > wires.size
+      }
+    })
+    return [newWires, changed]
+  }
+
+  let wires = new Map(input.initialValues.map(iv => [iv.name, iv.value]))
+  let unfinished = true
+
+  while (unfinished) {
+    const [newWires, changed] = processOnce(wires, input.gates)
+    wires = newWires
+    unfinished = changed
+  }
+
+  const binary = Array
+    .from(wires.entries())
+    .filter(([name]) => name.startsWith('z'))
+    .sort(([name1], [name2]) => name1 > name2 ? -1 : name1 === name2 ? 0 : 1)
+    .map(([_, value]) => value ? '1' : '0')
+    .join('')
+
+  return BigInt(`0b${binary}`)
+}
+
 function solve(input: PuzzleInput): Solution<bigint> {
-  console.log(input)
+  const part1 = process(input)
+
   return {
-    part1: BigInt(0),
+    part1: part1,
     part2: BigInt(0)
   }
 }
